@@ -3,297 +3,368 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
- content="width=device-width, initial-scale=1, maximum-scale=1,
- user-scalable=no, viewport-fit=cover">
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>THE INTESTELLER TRAVLER</title>
+<title>THE INTERSTELLAR TRAVELER</title>
 
 <style>
 * {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #02040a;
-  color: #e9f8ff;
-  font-family: Arial, sans-serif;
-  touch-action: none;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
 }
 
-#game {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+canvas {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
 }
 
-.hud {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
+#interface {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
 }
 
 .panel {
-  pointer-events: auto;
-  background: rgba(4, 17, 33, 0.88);
-  border: 1px solid rgba(95, 220, 255, 0.6);
-  border-radius: 10px;
-  backdrop-filter: blur(7px);
+    background: rgba(3, 12, 28, 0.82);
+    border: 1px solid rgba(70, 190, 255, 0.65);
+    box-shadow: 0 0 12px rgba(0, 145, 255, 0.15);
+    padding: 10px;
+    border-radius: 6px;
+    backdrop-filter: blur(5px);
 }
 
-button {
-  color: #eafaff;
-  background: rgba(5, 35, 57, 0.95);
-  border: 1px solid #58d9ff;
-  border-radius: 9px;
-  padding: 9px 11px;
-  font-size: 12px;
-  font-weight: bold;
-  min-height: 38px;
-  touch-action: manipulation;
+#title {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #8eeaff;
 }
 
-button:active {
-  background: #086789;
+#telemetry {
+    position: absolute;
+    top: 54px;
+    left: 10px;
+    font-size: 11px;
+    line-height: 1.8;
+    min-width: 150px;
 }
 
-#brand {
-  position: absolute;
-  top: 9px;
-  left: 9px;
-  padding: 9px;
-  color: #78eaff;
-  font-weight: bold;
-  font-size: 12px;
-  letter-spacing: 1px;
-  max-width: 62%;
+.label {
+    color: #79bfff;
+}
+
+.value {
+    color: #fff;
+    font-weight: bold;
 }
 
 #status {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  padding: 7px;
-  font-size: 10px;
-  text-align: right;
-  line-height: 1.5;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 53%;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #a8ffdb;
+    overflow-wrap: anywhere;
 }
 
-#message {
-  position: absolute;
-  left: 50%;
-  top: 59px;
-  transform: translateX(-50%);
-  padding: 6px 9px;
-  font-size: 10px;
-  white-space: nowrap;
-  max-width: 90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+#loadButton {
+    position: absolute;
+    top: 100px;
+    right: 10px;
+    pointer-events: auto;
+    border: 1px solid #56dfff;
+    background: rgba(0, 40, 75, 0.95);
+    color: #fff;
+    border-radius: 5px;
+    padding: 12px 13px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-#destBtn {
-  position: absolute;
-  top: 101px;
-  left: 9px;
-  pointer-events: auto;
-}
-
-#mapBtn {
-  position: absolute;
-  top: 101px;
-  right: 9px;
-  pointer-events: auto;
-}
-
-#destPanel {
-  display: none;
-  position: absolute;
-  top: 145px;
-  left: 9px;
-  width: min(280px, 78vw);
-  max-height: 55vh;
-  overflow-y: auto;
-  padding: 10px;
-  pointer-events: auto;
-}
-
-#destPanel h3 {
-  color: #78eaff;
-  font-size: 12px;
-  margin: 4px 0 8px;
-}
-
-.destrow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.destrow button {
-  flex: 1 1 42%;
-  text-align: left;
-}
-
-#mapPanel {
-  display: none;
-  position: absolute;
-  top: 145px;
-  right: 9px;
-  width: min(300px, 75vw);
-  padding: 9px;
-  pointer-events: auto;
-}
-
-#mapCanvas {
-  width: 100%;
-  height: 125px;
-  display: block;
-  background: #020915;
-  border: 1px solid #244c68;
-  border-radius: 7px;
-}
-
-#mapPanel p {
-  font-size: 10px;
-  margin-bottom: 0;
-}
-
-#leftControls {
-  position: absolute;
-  left: 10px;
-  bottom: max(12px, env(safe-area-inset-bottom));
-  display: grid;
-  grid-template-columns: 43px 43px 43px;
-  grid-template-rows: 42px 42px;
-  gap: 4px;
-  pointer-events: auto;
-}
-
-#leftControls button {
-  min-height: 42px;
-  padding: 0;
-  font-size: 19px;
-}
-
-#upBtn {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-#leftBtn {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-#downBtn {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-#rightBtn {
-  grid-column: 3;
-  grid-row: 2;
-}
-
-#rightControls {
-  position: absolute;
-  right: 10px;
-  bottom: max(12px, env(safe-area-inset-bottom));
-  display: grid;
-  grid-template-columns: repeat(2, minmax(64px, auto));
-  gap: 5px;
-  pointer-events: auto;
-}
-
-#rightControls button {
-  min-width: 64px;
-  padding: 8px 6px;
-  font-size: 10px;
-}
-
-#lookHint {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  opacity: 0.6;
-  white-space: nowrap;
+#loadButton:active {
+    background: #087ca8;
 }
 
 #fileInput {
-  display: none;
+    display: none;
 }
 
-#loadShip {
-  position: absolute;
-  right: 9px;
-  top: 145px;
-  display: none;
-  pointer-events: auto;
+#loadingBox {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    width: min(85%, 340px);
+    text-align: center;
+    pointer-events: none;
 }
 
-#modalShade {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.8);
+#loadingText {
+    font-size: 13px;
+    color: #b8edff;
+    margin-bottom: 12px;
 }
 
-#modal {
-  width: min(360px, 100%);
-  padding: 16px;
-  pointer-events: auto;
+#loadingTrack {
+    height: 5px;
+    background: #152d43;
+    border-radius: 5px;
+    overflow: hidden;
 }
 
-#modal h2 {
-  color: #78eaff;
-  font-size: 16px;
+#loadingBar {
+    height: 100%;
+    width: 0%;
+    background: #36d8ff;
+    transition: width 0.2s;
 }
 
-#modal p {
-  font-size: 12px;
-  line-height: 1.6;
+#crosshair {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(120, 230, 255, 0.75);
+    border-radius: 50%;
 }
 
-@media (orientation: portrait) {
-  #lookHint {
-    bottom: 105px;
-  }
+#crosshair::before,
+#crosshair::after {
+    content: "";
+    position: absolute;
+    background: rgba(120, 230, 255, 0.75);
+}
 
-  #leftControls {
-    grid-template-columns: 38px 38px 38px;
-    grid-template-rows: 38px 38px;
-  }
+#crosshair::before {
+    width: 32px;
+    height: 1px;
+    left: -6px;
+    top: 10px;
+}
 
-  #leftControls button {
-    min-height: 38px;
-  }
+#crosshair::after {
+    width: 1px;
+    height: 32px;
+    left: 10px;
+    top: -6px;
+}
 
-  #rightControls button {
-    min-width: 55px;
+#bottomInfo {
+    position: absolute;
+    bottom: 12px;
+    left: 10px;
+    font-size: 10px;
+    line-height: 1.7;
+    max-width: 43%;
+}
+
+#mapCanvas {
+    width: 120px;
+    height: 120px;
+    display: block;
+    background: rgba(0, 10, 25, 0.88);
+    border: 1px solid #438bb4;
+    border-radius: 5px;
+}
+
+#mapPanel {
+    position: absolute;
+    right: 10px;
+    bottom: 12px;
+    width: 130px;
+    pointer-events: none;
+}
+
+#mapTitle {
+    font-size: 10px;
+    color: #8eeaff;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+#controls {
+    position: absolute;
+    bottom: 150px;
+    right: 15px;
+    display: grid;
+    grid-template-columns: 54px 54px 54px;
+    grid-template-rows: 48px 48px 48px;
+    gap: 5px;
+    pointer-events: auto;
+}
+
+.ctrl {
+    background: rgba(0, 40, 75, 0.75);
+    border: 1px solid rgba(100, 205, 255, 0.7);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 18px;
+    touch-action: none;
+    user-select: none;
+}
+
+.ctrl:active,
+.ctrl.active {
+    background: rgba(0, 145, 220, 0.9);
+}
+
+#pitchUp { grid-column: 2; grid-row: 1; }
+#yawLeft { grid-column: 1; grid-row: 2; }
+#pitchDown { grid-column: 2; grid-row: 3; }
+#yawRight { grid-column: 3; grid-row: 2; }
+
+#rollLeft { grid-column: 1; grid-row: 1; font-size: 13px; }
+#rollRight { grid-column: 3; grid-row: 1; font-size: 13px; }
+
+#throttleControls {
+    position: absolute;
+    left: 10px;
+    bottom: 115px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    pointer-events: auto;
+}
+
+.throttleButton {
+    width: 105px;
+    padding: 11px 5px;
+    border-radius: 6px;
+    background: rgba(0, 40, 75, 0.8);
+    border: 1px solid #56dfff;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    touch-action: none;
+}
+
+#resetButton {
+    position: absolute;
+    left: 10px;
+    top: 210px;
+    pointer-events: auto;
+    padding: 9px 11px;
+    font-size: 10px;
+    color: white;
+    background: rgba(40, 20, 40, 0.8);
+    border: 1px solid #ba9cff;
+    border-radius: 5px;
+}
+
+#help {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
     font-size: 9px;
-  }
+    color: #9bb8cc;
+    text-align: center;
+    width: 42%;
+}
+
+@media (max-width: 600px) {
+    #title {
+        font-size: 10px;
+        letter-spacing: 1px;
+    }
+
+    #telemetry {
+        top: 43px;
+        font-size: 10px;
+        min-width: 120px;
+    }
+
+    #status {
+        font-size: 9px;
+        max-width: 48%;
+    }
+
+    #loadButton {
+        top: 90px;
+        font-size: 10px;
+        padding: 10px;
+    }
+
+    #controls {
+        bottom: 145px;
+        right: 8px;
+        grid-template-columns: 46px 46px 46px;
+        grid-template-rows: 43px 43px 43px;
+        gap: 4px;
+    }
+
+    .ctrl {
+        font-size: 16px;
+    }
+
+    #mapPanel {
+        width: 94px;
+        right: 8px;
+        bottom: 8px;
+    }
+
+    #mapCanvas {
+        width: 88px;
+        height: 88px;
+    }
+
+    #mapTitle {
+        font-size: 8px;
+    }
+
+    #bottomInfo {
+        bottom: 8px;
+        left: 8px;
+        font-size: 9px;
+    }
+
+    #throttleControls {
+        left: 8px;
+        bottom: 105px;
+    }
+
+    .throttleButton {
+        width: 90px;
+        padding: 9px 3px;
+        font-size: 9px;
+    }
+
+    #resetButton {
+        top: 190px;
+        left: 8px;
+    }
+
+    #help {
+        display: none;
+    }
 }
 </style>
 
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
   }
 }
 </script>
@@ -301,1363 +372,1007 @@ button:active {
 
 <body>
 
-<canvas id="game"></canvas>
+<div id="interface">
 
-<div class="hud">
-
-  <div id="brand" class="panel">
-    THE INTESTELLER TRAVLER
-  </div>
-
-  <div id="status" class="panel">
-    SYSTEM: STARTING
-  </div>
-
-  <div id="message" class="panel">
-    Drag screen to look around
-  </div>
-
-  <button id="destBtn">DESTINATIONS ▼</button>
-
-  <div id="destPanel" class="panel">
-
-    <h3>SOLAR SYSTEM</h3>
-
-    <div class="destrow">
-      <button data-target="Sun">Sun</button>
-      <button data-target="Mercury">Mercury</button>
-      <button data-target="Venus">Venus</button>
-      <button data-target="Earth">Earth</button>
-      <button data-target="Moon">Moon</button>
-      <button data-target="Mars">Mars</button>
-      <button data-target="Jupiter">Jupiter</button>
-      <button data-target="Saturn">Saturn</button>
-      <button data-target="Uranus">Uranus</button>
-      <button data-target="Neptune">Neptune</button>
+    <div id="title" class="panel">
+        THE INTERSTELLAR TRAVELER
     </div>
 
-    <h3>EXOPLANETS</h3>
-
-    <div class="destrow">
-      <button data-target="Kepler-22b">Kepler-22b</button>
-      <button data-target="Proxima b">Proxima b</button>
-      <button data-target="TRAPPIST-1e">TRAPPIST-1e</button>
-      <button data-target="Deep Space">Deep Space</button>
+    <div id="telemetry" class="panel">
+        <div><span class="label">SPEED:</span>
+            <span class="value" id="speed">0</span> m/s
+        </div>
+        <div><span class="label">THROTTLE:</span>
+            <span class="value" id="throttleValue">0</span>%
+        </div>
+        <div><span class="label">ALTITUDE:</span>
+            <span class="value" id="altitude">0</span> km
+        </div>
+        <div><span class="label">SHIP:</span>
+            <span class="value" id="shipState">DEFAULT</span>
+        </div>
     </div>
 
-    <h3>MISSIONS</h3>
-
-    <div class="destrow">
-      <button data-target="Orbit Earth">Earth Orbit</button>
-      <button data-target="Solar System">Solar System</button>
+    <div id="status" class="panel">
+        SYSTEM READY — SELECT A SHIP MODEL
     </div>
 
-    <button id="closeDest" style="width:100%">
-      CLOSE
-    </button>
+    <button id="loadButton">LOAD SPACESHIP (.GLB)</button>
+    <input id="fileInput" type="file" accept=".glb,.gltf">
 
-  </div>
+    <div id="loadingBox" class="panel">
+        <div id="loadingText">Loading spaceship...</div>
+        <div id="loadingTrack">
+            <div id="loadingBar"></div>
+        </div>
+    </div>
 
-  <button id="mapBtn">SCHEMATIC MAP</button>
+    <div id="crosshair"></div>
 
-  <div id="mapPanel" class="panel">
-    <canvas id="mapCanvas" width="600" height="250"></canvas>
-    <p>Navigation map — not to scale.</p>
-    <button id="closeMap" style="width:100%">CLOSE MAP</button>
-  </div>
+    <button id="resetButton">RESET FLIGHT</button>
 
-  <button id="loadShip">CHOOSE SHIP FILE</button>
+    <div id="throttleControls">
+        <button class="throttleButton" id="throttleUp">THROTTLE +</button>
+        <button class="throttleButton" id="throttleDown">THROTTLE −</button>
+        <button class="throttleButton" id="brakeButton">BRAKE</button>
+    </div>
 
-  <input
-    id="fileInput"
-    type="file"
-    accept=".glb,.gltf,model/gltf-binary,model/gltf+json"
-  >
+    <div id="controls">
+        <button class="ctrl" id="rollLeft">ROLL ↶</button>
+        <button class="ctrl" id="pitchUp">▲</button>
+        <button class="ctrl" id="rollRight">ROLL ↷</button>
+        <button class="ctrl" id="yawLeft">◀</button>
+        <button class="ctrl" id="pitchDown">▼</button>
+        <button class="ctrl" id="yawRight">▶</button>
+    </div>
 
-  <div id="leftControls">
-    <button id="upBtn">▲</button>
-    <button id="leftBtn">◀</button>
-    <button id="downBtn">▼</button>
-    <button id="rightBtn">▶</button>
-  </div>
+    <div id="bottomInfo" class="panel">
+        NAVIGATION: ACTIVE<br>
+        ENGINE: ONLINE<br>
+        SYSTEM: <span id="systemName">SOL</span>
+    </div>
 
-  <div id="rightControls">
-    <button id="thrustBtn">THRUST</button>
-    <button id="reverseBtn">REVERSE</button>
-    <button id="cameraBtn">FREE LOOK</button>
-    <button id="resetBtn">RESET</button>
-  </div>
+    <div id="mapPanel">
+        <div id="mapTitle">NAVIGATION MAP</div>
+        <canvas id="mapCanvas" width="240" height="240"></canvas>
+    </div>
 
-  <div id="lookHint">
-    DRAG SCREEN TO LOOK AROUND
-  </div>
-
-</div>
-
-<div id="modalShade">
-  <div id="modal" class="panel">
-    <h2>SHIP MODEL NOT LOADED</h2>
-    <p>
-      Google Drive may not provide a direct 3D file to the browser.
-      Choose the original GLB file from your phone if the ship
-      does not appear.
-    </p>
-    <button id="modalChoose">CHOOSE GLB FILE</button>
-    <button id="modalClose">CONTINUE WITH FALLBACK SHIP</button>
-  </div>
+    <div id="help">
+        Keyboard: W/S throttle · ↑/↓ pitch · ←/→ turn · A/D roll
+    </div>
 </div>
 
 <script type="module">
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from
+    'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 
-/* ---------------------------------
-   THREE.JS INITIALIZATION
---------------------------------- */
+const statusEl = document.getElementById('status');
+const fileInput = document.getElementById('fileInput');
+const loadButton = document.getElementById('loadButton');
+const loadingBox = document.getElementById('loadingBox');
+const loadingText = document.getElementById('loadingText');
+const loadingBar = document.getElementById('loadingBar');
 
-const canvas = document.getElementById('game');
+function setStatus(message) {
+    statusEl.textContent = message;
+}
 
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: true,
-  powerPreference: 'high-performance'
-});
+function showLoading(message, progress = 0) {
+    loadingBox.style.display = 'block';
+    loadingText.textContent = message;
+    loadingBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+}
 
-renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
-renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+function hideLoading() {
+    loadingBox.style.display = 'none';
+}
 
-const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x02040a);
-
-const camera = new THREE.PerspectiveCamera(
-  65,
-  innerWidth / innerHeight,
-  0.1,
-  100000
-);
-
-camera.position.set(0, 4, 18);
-
-scene.add(new THREE.HemisphereLight(
-  0xa9d9ff,
-  0x111321,
-  1.4
-));
-
-const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
-sunLight.position.set(500, 300, -1000);
-scene.add(sunLight);
-
-const fillLight = new THREE.PointLight(0x58bfff, 1, 4000);
-fillLight.position.set(-20, 30, 40);
-scene.add(fillLight);
-
-
-/* ---------------------------------
-   SHIP AND FALLBACK MODEL
---------------------------------- */
-
-const shipRoot = new THREE.Group();
-scene.add(shipRoot);
-
+let scene, camera, renderer, clock;
+let shipRoot, shipVisual, fallbackShip;
 let shipModel = null;
-let shipLoadSucceeded = false;
+let currentLoadToken = 0;
 
-function createFallbackShip() {
-
-  const group = new THREE.Group();
-
-  const body = new THREE.Mesh(
-    new THREE.ConeGeometry(0.9, 4.8, 10),
-    new THREE.MeshStandardMaterial({
-      color: 0xc0d3e2,
-      metalness: 0.65,
-      roughness: 0.3
-    })
-  );
-
-  body.rotation.x = -Math.PI / 2;
-  body.position.z = -1.1;
-  group.add(body);
-
-  const wing = new THREE.Mesh(
-    new THREE.BoxGeometry(5.8, 0.15, 1.1),
-    new THREE.MeshStandardMaterial({
-      color: 0x386d96,
-      metalness: 0.6,
-      roughness: 0.35
-    })
-  );
-
-  wing.position.z = 0.25;
-  group.add(wing);
-
-  const cockpit = new THREE.Mesh(
-    new THREE.SphereGeometry(0.42, 24, 18),
-    new THREE.MeshStandardMaterial({
-      color: 0x39dfff,
-      emissive: 0x083e66,
-      metalness: 0.3,
-      roughness: 0.15
-    })
-  );
-
-  cockpit.scale.set(0.8, 0.65, 1.3);
-  cockpit.position.set(0, 0.4, -1.25);
-  group.add(cockpit);
-
-  const engineMaterial = new THREE.MeshBasicMaterial({
-    color: 0x42dcff
-  });
-
-  for (const x of [-0.45, 0.45]) {
-
-    const engine = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 12, 12),
-      engineMaterial
-    );
-
-    engine.position.set(x, -0.05, 1.4);
-    group.add(engine);
-  }
-
-  return group;
-}
-
-const fallbackShip = createFallbackShip();
-shipRoot.add(fallbackShip);
-
-
-/* ---------------------------------
-   LOAD YOUR GOOGLE DRIVE SHIP
---------------------------------- */
-
-const driveId = '1fClk74KK4ZZNe1cmmebS3bIR2LylhBXS';
-
-const driveUrls = [
-  `https://drive.google.com/uc?export=download&id=${driveId}`,
-  `https://drive.google.com/uc?id=${driveId}&export=download`
-];
-
-const loader = new GLTFLoader();
-
-function setMessage(text) {
-  document.getElementById('message').textContent = text;
-}
-
-function prepareShip(gltf) {
-
-  if (shipModel) {
-    shipRoot.remove(shipModel);
-  }
-
-  shipModel = gltf.scene;
-
-  shipModel.traverse(object => {
-
-    if (!object.isMesh) return;
-
-    object.frustumCulled = false;
-
-    if (object.material) {
-      object.material.needsUpdate = true;
-    }
-  });
-
-  // Automatically scale and center the model.
-  const box = new THREE.Box3().setFromObject(shipModel);
-  const size = box.getSize(new THREE.Vector3());
-
-  const maxDimension = Math.max(size.x, size.y, size.z) || 1;
-
-  shipModel.scale.setScalar(7 / maxDimension);
-
-  const newBox = new THREE.Box3().setFromObject(shipModel);
-  const center = newBox.getCenter(new THREE.Vector3());
-
-  shipModel.position.sub(center);
-
-  shipRoot.remove(fallbackShip);
-  shipRoot.add(shipModel);
-
-  shipLoadSucceeded = true;
-
-  document.getElementById('loadShip').style.display = 'none';
-  document.getElementById('modalShade').style.display = 'none';
-
-  setMessage('Custom ship model loaded.');
-}
-
-function loadFromDrive(index = 0) {
-
-  if (index >= driveUrls.length) {
-
-    setMessage('Choose your GLB file if the ship is missing.');
-
-    document.getElementById('loadShip').style.display = 'block';
-    document.getElementById('modalShade').style.display = 'flex';
-
-    return;
-  }
-
-  setMessage('Trying to load your ship model...');
-
-  loader.load(
-    driveUrls[index],
-
-    gltf => {
-      prepareShip(gltf);
-    },
-
-    progress => {
-      if (progress.total > 0) {
-        const percent = Math.round(
-          progress.loaded / progress.total * 100
-        );
-
-        setMessage('Loading ship: ' + percent + '%');
-      }
-    },
-
-    error => {
-      console.warn('Ship URL failed:', error);
-
-      loadFromDrive(index + 1);
-    }
-  );
-}
-
-loadFromDrive(0);
-
-
-/* ---------------------------------
-   PHONE FILE PICKER FALLBACK
---------------------------------- */
-
-document.getElementById('loadShip').onclick = () => {
-  document.getElementById('fileInput').click();
-};
-
-document.getElementById('modalChoose').onclick = () => {
-  document.getElementById('fileInput').click();
-};
-
-document.getElementById('modalClose').onclick = () => {
-  document.getElementById('modalShade').style.display = 'none';
-};
-
-document.getElementById('fileInput').addEventListener('change', event => {
-
-  const file = event.target.files[0];
-
-  if (!file) return;
-
-  const objectUrl = URL.createObjectURL(file);
-
-  setMessage('Loading selected ship file...');
-
-  loader.load(
-    objectUrl,
-
-    gltf => {
-      prepareShip(gltf);
-      URL.revokeObjectURL(objectUrl);
-    },
-
-    undefined,
-
-    error => {
-      console.error(error);
-
-      setMessage('Could not load that file. Try the original GLB.');
-
-      URL.revokeObjectURL(objectUrl);
-    }
-  );
-});
-
-
-/* ---------------------------------
-   ROUND STARFIELD
---------------------------------- */
-
-const starPositions = [];
-const starColors = [];
-
-for (let i = 0; i < 4500; i++) {
-
-  const radius = 1800 + Math.random() * 9000;
-
-  const angle = Math.random() * Math.PI * 2;
-  const vertical = Math.acos(2 * Math.random() - 1);
-
-  starPositions.push(
-    radius * Math.sin(vertical) * Math.cos(angle),
-    radius * Math.cos(vertical),
-    radius * Math.sin(vertical) * Math.sin(angle)
-  );
-
-  const brightness = 0.6 + Math.random() * 0.4;
-
-  starColors.push(
-    brightness,
-    brightness,
-    Math.min(1, brightness + Math.random() * 0.15)
-  );
-}
-
-// Radial gradient makes stars round instead of square.
-const starCanvas = document.createElement('canvas');
-
-starCanvas.width = 64;
-starCanvas.height = 64;
-
-const starContext = starCanvas.getContext('2d');
-
-const gradient = starContext.createRadialGradient(
-  32, 32, 0,
-  32, 32, 31
-);
-
-gradient.addColorStop(0, 'rgba(255,255,255,1)');
-gradient.addColorStop(0.25, 'rgba(255,255,255,0.95)');
-gradient.addColorStop(0.6, 'rgba(255,255,255,0.45)');
-gradient.addColorStop(1, 'rgba(255,255,255,0)');
-
-starContext.fillStyle = gradient;
-starContext.fillRect(0, 0, 64, 64);
-
-const starTexture = new THREE.CanvasTexture(starCanvas);
-
-const starGeometry = new THREE.BufferGeometry();
-
-starGeometry.setAttribute(
-  'position',
-  new THREE.Float32BufferAttribute(starPositions, 3)
-);
-
-starGeometry.setAttribute(
-  'color',
-  new THREE.Float32BufferAttribute(starColors, 3)
-);
-
-const stars = new THREE.Points(
-  starGeometry,
-
-  new THREE.PointsMaterial({
-    size: 3,
-    map: starTexture,
-    vertexColors: true,
-    transparent: true,
-    alphaTest: 0.03,
-    depthWrite: false,
-    sizeAttenuation: true
-  })
-);
-
-scene.add(stars);
-
-
-/* ---------------------------------
-   PROCEDURAL PLANET TEXTURES
---------------------------------- */
-
-function createPlanetTexture(type, baseColor) {
-
-  const c = document.createElement('canvas');
-
-  c.width = 1024;
-  c.height = 512;
-
-  const ctx = c.getContext('2d');
-
-  ctx.fillStyle = baseColor;
-  ctx.fillRect(0, 0, c.width, c.height);
-
-  if (type === 'gas') {
-
-    const bands = [
-      'rgba(255,255,255,0.15)',
-      'rgba(70,40,25,0.18)',
-      'rgba(245,200,130,0.18)',
-      'rgba(25,15,10,0.12)'
-    ];
-
-    for (let i = 0; i < 100; i++) {
-
-      const y = Math.random() * c.height;
-      const h = 2 + Math.random() * 14;
-
-      ctx.fillStyle = bands[i % bands.length];
-
-      ctx.fillRect(0, y, c.width, h);
-    }
-
-    // Jupiter-like storm.
-    ctx.fillStyle = 'rgba(180,65,35,0.55)';
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-      720, 320, 70, 24, -0.1, 0, Math.PI * 2
-    );
-
-    ctx.fill();
-
-  } else if (type === 'earth') {
-
-    // Earth-like oceans and continents.
-    for (let i = 0; i < 200; i++) {
-
-      ctx.fillStyle =
-        Math.random() > 0.5 ? '#668e47' : '#b2a26a';
-
-      ctx.globalAlpha = 0.25 + Math.random() * 0.35;
-
-      ctx.beginPath();
-
-      ctx.ellipse(
-        Math.random() * 1024,
-        Math.random() * 512,
-        10 + Math.random() * 45,
-        5 + Math.random() * 25,
-        Math.random() * 3,
-        0,
-        Math.PI * 2
-      );
-
-      ctx.fill();
-    }
-
-    ctx.globalAlpha = 1;
-
-    // Clouds.
-    for (let i = 0; i < 900; i++) {
-
-      ctx.fillStyle = 'rgba(255,255,255,0.10)';
-
-      ctx.fillRect(
-        Math.random() * 1024,
-        Math.random() * 512,
-        2 + Math.random() * 8,
-        1 + Math.random() * 3
-      );
-    }
-
-  } else if (type === 'ice') {
-
-    for (let i = 0; i < 350; i++) {
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.lineWidth = 1 + Math.random() * 3;
-
-      ctx.beginPath();
-
-      const x = Math.random() * 1024;
-      const y = Math.random() * 512;
-
-      ctx.moveTo(x, y);
-
-      ctx.lineTo(
-        x + Math.random() * 50,
-        y + Math.random() * 35
-      );
-
-      ctx.stroke();
-    }
-
-  } else {
-
-    // Rocky surface.
-    for (let i = 0; i < 500; i++) {
-
-      ctx.fillStyle =
-        Math.random() > 0.5
-          ? 'rgba(0,0,0,0.15)'
-          : 'rgba(255,255,255,0.12)';
-
-      ctx.beginPath();
-
-      ctx.arc(
-        Math.random() * 1024,
-        Math.random() * 512,
-        1 + Math.random() * 9,
-        0,
-        Math.PI * 2
-      );
-
-      ctx.fill();
-    }
-  }
-
-  const texture = new THREE.CanvasTexture(c);
-
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.anisotropy = 4;
-
-  return texture;
-}
-
-
-/* ---------------------------------
-   SOLAR SYSTEM
---------------------------------- */
-
-const planetData = [
-
-  {
-    name: 'Sun',
-    pos: [-850, 150, -4200],
-    radius: 180,
-    color: '#ffbd55',
-    type: 'rocky',
-    sun: true
-  },
-
-  {
-    name: 'Mercury',
-    pos: [-400, 20, -2100],
-    radius: 20,
-    color: '#77716c',
-    type: 'rocky'
-  },
-
-  {
-    name: 'Venus',
-    pos: [-230, 35, -2500],
-    radius: 36,
-    color: '#d6ad70',
-    type: 'gas'
-  },
-
-  {
-    name: 'Earth',
-    pos: [0, 0, -3000],
-    radius: 42,
-    color: '#163f8b',
-    type: 'earth'
-  },
-
-  {
-    name: 'Moon',
-    pos: [95, 12, -2890],
-    radius: 11,
-    color: '#aaa9a2',
-    type: 'rocky'
-  },
-
-  {
-    name: 'Mars',
-    pos: [300, -15, -3600],
-    radius: 31,
-    color: '#a84d32',
-    type: 'rocky'
-  },
-
-  {
-    name: 'Jupiter',
-    pos: [750, 55, -4700],
-    radius: 130,
-    color: '#bd9a72',
-    type: 'gas'
-  },
-
-  {
-    name: 'Saturn',
-    pos: [1200, 80, -5600],
-    radius: 105,
-    color: '#d7c18e',
-    type: 'gas',
-    ring: true
-  },
-
-  {
-    name: 'Uranus',
-    pos: [1550, -50, -6700],
-    radius: 65,
-    color: '#75cdd3',
-    type: 'ice'
-  },
-
-  {
-    name: 'Neptune',
-    pos: [1880, 35, -7600],
-    radius: 62,
-    color: '#2857c9',
-    type: 'ice'
-  },
-
-  {
-    name: 'Kepler-22b',
-    pos: [-2400, 450, -9200],
-    radius: 75,
-    color: '#327b9e',
-    type: 'ice'
-  },
-
-  {
-    name: 'Proxima b',
-    pos: [2800, -400, -10000],
-    radius: 48,
-    color: '#a65c40',
-    type: 'rocky'
-  },
-
-  {
-    name: 'TRAPPIST-1e',
-    pos: [3300, 500, -11200],
-    radius: 43,
-    color: '#9b8a72',
-    type: 'rocky'
-  }
-];
-
-const planets = {};
-
-planetData.forEach(data => {
-
-  const geometry = new THREE.SphereGeometry(
-    data.radius,
-    64,
-    48
-  );
-
-  const texture = createPlanetTexture(
-    data.type,
-    data.color
-  );
-
-  // Opaque material: background stars cannot show through.
-  const material = new THREE.MeshStandardMaterial({
-    map: data.sun ? null : texture,
-    color: data.sun ? data.color : 0xffffff,
-    roughness: 0.9,
-    metalness: 0,
-    transparent: false,
-    opacity: 1,
-    depthWrite: true,
-    depthTest: true
-  });
-
-  if (data.sun) {
-    material.emissive = new THREE.Color(0xff8a22);
-    material.emissiveIntensity = 1.2;
-  }
-
-  const planet = new THREE.Mesh(geometry, material);
-
-  planet.position.set(...data.pos);
-  planet.name = data.name;
-
-  scene.add(planet);
-
-  if (data.sun) {
-
-    const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(data.radius * 1.12, 32, 24),
-
-      new THREE.MeshBasicMaterial({
-        color: 0xffa83a,
-        transparent: true,
-        opacity: 0.12,
-        side: THREE.BackSide,
-        depthWrite: false
-      })
-    );
-
-    planet.add(glow);
-  }
-
-  if (data.ring) {
-
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(
-        data.radius * 1.35,
-        data.radius * 2.05,
-        96
-      ),
-
-      new THREE.MeshStandardMaterial({
-        color: 0xc9b98c,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.8,
-        roughness: 1,
-        depthWrite: false
-      })
-    );
-
-    ring.rotation.x = Math.PI / 2.35;
-
-    planet.add(ring);
-  }
-
-  planets[data.name] = planet;
-});
-
-
-/* ---------------------------------
-   DISTANT STAR SYSTEMS
---------------------------------- */
-
-for (let i = 0; i < 35; i++) {
-
-  const distantStar = new THREE.Mesh(
-    new THREE.SphereGeometry(
-      18 + Math.random() * 35,
-      24,
-      18
-    ),
-
-    new THREE.MeshStandardMaterial({
-      color: new THREE.Color().setHSL(
-        0.52 + Math.random() * 0.16,
-        0.35,
-        0.22 + Math.random() * 0.25
-      ),
-
-      roughness: 1
-    })
-  );
-
-  distantStar.position.set(
-    (Math.random() - 0.5) * 9000,
-    (Math.random() - 0.5) * 3000,
-    -12000 - Math.random() * 15000
-  );
-
-  scene.add(distantStar);
-}
-
-
-/* ---------------------------------
-   FLIGHT CONTROLS
---------------------------------- */
-
+let throttle = 0;
 let speed = 0;
-let yaw = 0;
-let pitch = 0;
+let maxSpeed = 300;
+let braking = false;
 
-let thrustHeld = false;
-let reverseHeld = false;
-let freeLook = true;
-
-let targetName = 'Earth';
-
-const movement = {
-  left: false,
-  right: false,
-  up: false,
-  down: false
+const keys = Object.create(null);
+const planets = [];
+const stars = [];
+const controlState = {
+    pitchUp: false,
+    pitchDown: false,
+    yawLeft: false,
+    yawRight: false,
+    rollLeft: false,
+    rollRight: false
 };
 
-const keys = {};
+const UP = new THREE.Vector3(0, 1, 0);
+const tempVec = new THREE.Vector3();
 
-const clock = new THREE.Clock();
-
-function holdButton(id, direction) {
-
-  const button = document.getElementById(id);
-
-  function start(event) {
-    event.preventDefault();
-    movement[direction] = true;
-  }
-
-  function stop(event) {
-    event.preventDefault();
-    movement[direction] = false;
-  }
-
-  button.addEventListener('pointerdown', start);
-  button.addEventListener('pointerup', stop);
-  button.addEventListener('pointerleave', stop);
-  button.addEventListener('pointercancel', stop);
-}
-
-holdButton('leftBtn', 'left');
-holdButton('rightBtn', 'right');
-holdButton('upBtn', 'up');
-holdButton('downBtn', 'down');
-
-function setupHoldButton(id, variable) {
-
-  const button = document.getElementById(id);
-
-  button.addEventListener('pointerdown', event => {
-    event.preventDefault();
-
-    if (variable === 'thrust') {
-      thrustHeld = true;
-    }
-
-    if (variable === 'reverse') {
-      reverseHeld = true;
-    }
-  });
-
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach(type => {
-
-    button.addEventListener(type, () => {
-
-      if (variable === 'thrust') {
-        thrustHeld = false;
-      }
-
-      if (variable === 'reverse') {
-        reverseHeld = false;
-      }
-    });
-  });
-}
-
-setupHoldButton('thrustBtn', 'thrust');
-setupHoldButton('reverseBtn', 'reverse');
-
-addEventListener('keydown', event => {
-  keys[event.key.toLowerCase()] = true;
-});
-
-addEventListener('keyup', event => {
-  keys[event.key.toLowerCase()] = false;
-});
-
-
-/* ---------------------------------
-   FREE-LOOK CAMERA
---------------------------------- */
-
-let pointerDown = false;
-let lastX = 0;
-let lastY = 0;
-
-canvas.addEventListener('pointerdown', event => {
-
-  pointerDown = true;
-
-  lastX = event.clientX;
-  lastY = event.clientY;
-
-  if (canvas.setPointerCapture) {
-    canvas.setPointerCapture(event.pointerId);
-  }
-});
-
-canvas.addEventListener('pointermove', event => {
-
-  if (!pointerDown || !freeLook) return;
-
-  const dx = event.clientX - lastX;
-  const dy = event.clientY - lastY;
-
-  lastX = event.clientX;
-  lastY = event.clientY;
-
-  yaw -= dx * 0.004;
-
-  pitch -= dy * 0.0035;
-
-  pitch = THREE.MathUtils.clamp(
-    pitch,
-    -1.1,
-    1.1
-  );
-});
-
-canvas.addEventListener('pointerup', () => {
-  pointerDown = false;
-});
-
-canvas.addEventListener('pointercancel', () => {
-  pointerDown = false;
-});
-
-
-/* ---------------------------------
-   DESTINATION SELECTOR
---------------------------------- */
-
-document.getElementById('destBtn').onclick = () => {
-
-  const panel = document.getElementById('destPanel');
-
-  panel.style.display =
-    panel.style.display === 'block' ? 'none' : 'block';
-};
-
-document.getElementById('closeDest').onclick = () => {
-  document.getElementById('destPanel').style.display = 'none';
-};
-
-document.querySelectorAll('[data-target]').forEach(button => {
-
-  button.onclick = () => {
-
-    targetName = button.dataset.target;
-
-    if (planets[targetName]) {
-
-      const target = planets[targetName];
-
-      // Set a direction toward the selected destination.
-      const direction = target.position.clone()
-        .sub(shipRoot.position)
-        .normalize();
-
-      yaw = Math.atan2(-direction.x, -direction.z);
-
-      pitch = Math.asin(
-        THREE.MathUtils.clamp(direction.y, -1, 1)
-      );
-
-    } else if (targetName === 'Orbit Earth') {
-
-      targetName = 'Orbit Earth';
-
-      yaw = 0;
-      pitch = 0;
-
-    } else if (targetName === 'Solar System') {
-
-      yaw = 0;
-      pitch = 0;
-
-    } else {
-
-      // Exoplanet labels are illustrative destinations,
-      // not scientifically accurate interstellar routes.
-      yaw = (Math.random() - 0.5) * 1.5;
-      pitch = (Math.random() - 0.5) * 0.4;
-    }
-
-    setMessage('Navigation target: ' + targetName);
-
-    document.getElementById('destPanel').style.display = 'none';
-  };
-});
-
-
-/* ---------------------------------
-   SCHEMATIC MAP
---------------------------------- */
-
-function drawMap() {
-
-  const mapCanvas = document.getElementById('mapCanvas');
-
-  const ctx = mapCanvas.getContext('2d');
-
-  ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
-
-  ctx.fillStyle = '#030b18';
-
-  ctx.fillRect(
-    0,
-    0,
-    mapCanvas.width,
-    mapCanvas.height
-  );
-
-  ctx.strokeStyle = '#163b55';
-
-  for (let x = 0; x < 600; x += 50) {
-
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, 250);
-    ctx.stroke();
-  }
-
-  for (let y = 0; y < 250; y += 40) {
-
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(600, y);
-    ctx.stroke();
-  }
-
-  const names = [
-    'Sun',
-    'Mercury',
-    'Venus',
-    'Earth',
-    'Mars',
-    'Jupiter',
-    'Saturn',
-    'Uranus',
-    'Neptune'
-  ];
-
-  names.forEach((name, index) => {
-
-    const x = 30 + index * 65;
-    const y = 120;
-
-    ctx.fillStyle =
-      name === targetName ? '#ffffff' : '#6be6ff';
-
-    ctx.beginPath();
-
-    ctx.arc(
-      x,
-      y,
-      name === 'Sun' ? 8 : 4,
-      0,
-      Math.PI * 2
-    );
-
-    ctx.fill();
-
-    ctx.fillStyle = '#b9dbe9';
-    ctx.font = '12px Arial';
-
-    ctx.fillText(name, x - 18, y + 20);
-  });
-
-  ctx.strokeStyle = '#4bdaff';
-  ctx.setLineDash([6, 5]);
-
-  ctx.beginPath();
-  ctx.moveTo(15, 230);
-  ctx.lineTo(580, 20);
-  ctx.stroke();
-
-  ctx.setLineDash([]);
-}
-
-drawMap();
-
-document.getElementById('mapBtn').onclick = () => {
-
-  const panel = document.getElementById('mapPanel');
-
-  panel.style.display =
-    panel.style.display === 'block' ? 'none' : 'block';
-
-  drawMap();
-};
-
-document.getElementById('closeMap').onclick = () => {
-  document.getElementById('mapPanel').style.display = 'none';
-};
-
-
-/* ---------------------------------
-   CAMERA AND RESET BUTTONS
---------------------------------- */
-
-document.getElementById('cameraBtn').onclick = () => {
-
-  freeLook = !freeLook;
-
-  document.getElementById('cameraBtn').textContent =
-    freeLook ? 'FREE LOOK' : 'CHASE CAM';
-
-  setMessage(
-    freeLook
-      ? 'Free-look camera active.'
-      : 'Chase camera active.'
-  );
-};
-
-document.getElementById('resetBtn').onclick = () => {
-
-  shipRoot.position.set(0, 0, 0);
-
-  speed = 0;
-  yaw = 0;
-  pitch = 0;
-
-  targetName = 'Earth';
-
-  setMessage('Flight controls reset.');
-};
-
-
-/* ---------------------------------
-   STATUS DISPLAY
---------------------------------- */
-
-function updateStatus() {
-
-  document.getElementById('status').innerHTML =
-    'TARGET: ' + targetName.toUpperCase() +
-    '<br>SPEED: ' + Math.round(speed * 100) + ' km/s' +
-    '<br>SHIP: ' +
-    (shipLoadSucceeded ? 'CUSTOM GLB' : 'FALLBACK / LOADING');
-}
-
-
-/* ---------------------------------
-   MAIN GAME LOOP
---------------------------------- */
-
-function animate() {
-
-  requestAnimationFrame(animate);
-
-  const dt = Math.min(clock.getDelta(), 0.05);
-
-  // Steering buttons and keyboard.
-  if (
-    movement.left ||
-    keys['arrowleft'] ||
-    keys['a']
-  ) {
-    yaw += dt * 0.9;
-  }
-
-  if (
-    movement.right ||
-    keys['arrowright'] ||
-    keys['d']
-  ) {
-    yaw -= dt * 0.9;
-  }
-
-  if (
-    movement.up ||
-    keys['arrowup'] ||
-    keys['w']
-  ) {
-    pitch += dt * 0.7;
-  }
-
-  if (
-    movement.down ||
-    keys['arrowdown'] ||
-    keys['s']
-  ) {
-    pitch -= dt * 0.7;
-  }
-
-  pitch = THREE.MathUtils.clamp(
-    pitch,
-    -1.15,
-    1.15
-  );
-
-  // Thrust and reverse.
-  if (thrustHeld || keys[' ']) {
-
-    speed = Math.min(
-      speed + dt * 5,
-      120
-    );
-
-  } else if (reverseHeld || keys['shift']) {
-
-    speed = Math.max(
-      speed - dt * 7,
-      0
-    );
-
-  } else {
-
-    speed = Math.max(
-      speed - dt * 0.06,
-      0
-    );
-  }
-
-  const forward = new THREE.Vector3(0, 0, -1);
-
-  forward.applyEuler(
-    new THREE.Euler(pitch, yaw, 0, 'YXZ')
-  );
-
-  shipRoot.position.add(
-    forward.clone().multiplyScalar(speed * dt * 4.5)
-  );
-
-  shipRoot.rotation.set(
-    pitch,
-    yaw,
-    0,
-    'YXZ'
-  );
-
-  // Planet rotation.
-  Object.values(planets).forEach((planet, index) => {
-
-    planet.rotation.y += dt * (
-      0.025 + (index % 4) * 0.008
-    );
-  });
-
-  stars.rotation.y += dt * 0.0004;
-
-  // Camera follows the ship.
-  const cameraOffset = new THREE.Vector3(
-    0,
-    4,
-    17
-  );
-
-  cameraOffset.applyEuler(
-    new THREE.Euler(
-      pitch * 0.55,
-      yaw,
-      0,
-      'YXZ'
-    )
-  );
-
-  const desiredCameraPosition =
-    shipRoot.position.clone().add(cameraOffset);
-
-  camera.position.lerp(
-    desiredCameraPosition,
-    0.08
-  );
-
-  const lookDirection = forward.clone().multiplyScalar(30);
-
-  camera.lookAt(
-    shipRoot.position.clone().add(lookDirection)
-  );
-
-  sunLight.position.copy(planets.Sun.position);
-
-  updateStatus();
-
-  renderer.render(scene, camera);
-}
-
+init();
 animate();
 
+/* -------------------------------------------------------
+   INITIALIZE GAME
+------------------------------------------------------- */
 
-/* ---------------------------------
-   RESIZE FOR MOBILE AND LANDSCAPE
---------------------------------- */
+function init() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x02040b);
+    scene.fog = new THREE.FogExp2(0x02040b, 0.00022);
 
-function resize() {
+    camera = new THREE.PerspectiveCamera(
+        65,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100000
+    );
 
-  camera.aspect = innerWidth / innerHeight;
+    renderer = new THREE.WebGLRenderer({
+        antialias: false,
+        powerPreference: 'high-performance'
+    });
 
-  camera.updateProjectionMatrix();
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio || 1, 1.5)
+    );
 
-  renderer.setPixelRatio(
-    Math.min(devicePixelRatio || 1, 1.5)
-  );
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    document.body.appendChild(renderer.domElement);
 
-  renderer.setSize(
-    innerWidth,
-    innerHeight
-  );
+    clock = new THREE.Clock();
+
+    createLighting();
+    createStars();
+    createPlanets();
+    createShip();
+    createControls();
+
+    camera.position.set(0, 5, 17);
+    camera.lookAt(shipRoot.position);
+
+    window.addEventListener('resize', onResize);
+
+    setStatus('SYSTEM READY — SELECT A GLB SPACESHIP');
 }
 
-addEventListener('resize', resize);
+/* -------------------------------------------------------
+   LIGHTING
+------------------------------------------------------- */
 
-addEventListener('orientationchange', () => {
-  setTimeout(resize, 200);
+function createLighting() {
+    const ambient = new THREE.HemisphereLight(
+        0x9ebdff,
+        0x080b20,
+        1.4
+    );
+
+    scene.add(ambient);
+
+    const sunLight = new THREE.PointLight(0xffffff, 3000, 10000);
+    sunLight.position.set(0, 0, 0);
+    scene.add(sunLight);
+
+    const fillLight = new THREE.DirectionalLight(0x76bfff, 1.5);
+    fillLight.position.set(-10, 20, 10);
+    scene.add(fillLight);
+}
+
+/* -------------------------------------------------------
+   STAR FIELD
+------------------------------------------------------- */
+
+function createStars() {
+    const count = 5000;
+    const positions = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+        const radius = 1800 + Math.random() * 8000;
+
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[i * 3] =
+            radius * Math.sin(phi) * Math.cos(theta);
+
+        positions[i * 3 + 1] =
+            radius * Math.sin(phi) * Math.sin(theta);
+
+        positions[i * 3 + 2] =
+            radius * Math.cos(phi);
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+        'position',
+        new THREE.BufferAttribute(positions, 3)
+    );
+
+    const material = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 2.2,
+        sizeAttenuation: true
+    });
+
+    const starField = new THREE.Points(geometry, material);
+    scene.add(starField);
+    stars.push(starField);
+}
+
+/* -------------------------------------------------------
+   PROCEDURAL PLANETS
+------------------------------------------------------- */
+
+function createPlanetTexture(baseColor, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let randomSeed = seed;
+
+    function random() {
+        randomSeed = (randomSeed * 9301 + 49297) % 233280;
+        return randomSeed / 233280;
+    }
+
+    for (let i = 0; i < 1000; i++) {
+        const x = random() * canvas.width;
+        const y = random() * canvas.height;
+        const w = 5 + random() * 65;
+        const h = 2 + random() * 20;
+
+        const light = random() > 0.5;
+        ctx.fillStyle = light
+            ? 'rgba(255,255,255,0.12)'
+            : 'rgba(0,0,0,0.16)';
+
+        ctx.beginPath();
+        ctx.ellipse(x, y, w, h, random() * 0.3, 0,
+            Math.PI * 2);
+        ctx.fill();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+}
+
+function createPlanets() {
+    const data = [
+        {
+            name: 'MERCURY',
+            size: 4,
+            distance: 80,
+            color: '#8a8074',
+            seed: 11
+        },
+        {
+            name: 'VENUS',
+            size: 7,
+            distance: 125,
+            color: '#d6a46d',
+            seed: 22
+        },
+        {
+            name: 'EARTH',
+            size: 8,
+            distance: 185,
+            color: '#1765b5',
+            seed: 33
+        },
+        {
+            name: 'MARS',
+            size: 6,
+            distance: 250,
+            color: '#a94f32',
+            seed: 44
+        },
+        {
+            name: 'JUPITER',
+            size: 26,
+            distance: 390,
+            color: '#c69b77',
+            seed: 55
+        },
+        {
+            name: 'SATURN',
+            size: 22,
+            distance: 560,
+            color: '#d6c092',
+            seed: 66
+        },
+        {
+            name: 'URANUS',
+            size: 15,
+            distance: 730,
+            color: '#7dcdd7',
+            seed: 77
+        },
+        {
+            name: 'NEPTUNE',
+            size: 15,
+            distance: 890,
+            color: '#3154c5',
+            seed: 88
+        }
+    ];
+
+    data.forEach((item, index) => {
+        const geometry = new THREE.SphereGeometry(
+            item.size,
+            40,
+            32
+        );
+
+        const material = new THREE.MeshStandardMaterial({
+            map: createPlanetTexture(item.color, item.seed),
+            roughness: 0.95,
+            metalness: 0
+        });
+
+        const planet = new THREE.Mesh(geometry, material);
+
+        const angle = index * 0.9 + 0.5;
+
+        planet.position.set(
+            Math.cos(angle) * item.distance,
+            (index % 3 - 1) * 5,
+            Math.sin(angle) * item.distance
+        );
+
+        planet.userData.name = item.name;
+        planet.userData.distance = item.distance;
+        planet.userData.angle = angle;
+        planet.userData.orbitSpeed = 0.00015 / (index + 1);
+
+        scene.add(planet);
+        planets.push(planet);
+
+        if (item.name === 'SATURN') {
+            const ringGeometry = new THREE.RingGeometry(
+                item.size * 1.35,
+                item.size * 2.1,
+                64
+            );
+
+            const ringMaterial = new THREE.MeshStandardMaterial({
+                color: 0xb9a27d,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.7
+            });
+
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2.3;
+            planet.add(ring);
+        }
+    });
+
+    // A distant star representing the system's sun.
+    const sun = new THREE.Mesh(
+        new THREE.SphereGeometry(18, 32, 24),
+        new THREE.MeshBasicMaterial({ color: 0xffd27a })
+    );
+
+    sun.position.set(0, 0, 0);
+    scene.add(sun);
+}
+
+/* -------------------------------------------------------
+   DEFAULT SHIP
+------------------------------------------------------- */
+
+function createShip() {
+    shipRoot = new THREE.Group();
+    scene.add(shipRoot);
+
+    shipVisual = new THREE.Group();
+    shipRoot.add(shipVisual);
+
+    fallbackShip = createFallbackShip();
+    shipVisual.add(fallbackShip);
+}
+
+function createFallbackShip() {
+    const group = new THREE.Group();
+
+    const hullMaterial = new THREE.MeshStandardMaterial({
+        color: 0x9cb9d7,
+        metalness: 0.75,
+        roughness: 0.3
+    });
+
+    const darkMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1b304b,
+        metalness: 0.6,
+        roughness: 0.25
+    });
+
+    const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x36cfff
+    });
+
+    const hull = new THREE.Mesh(
+        new THREE.ConeGeometry(1.15, 4.5, 8),
+        hullMaterial
+    );
+
+    // The cone's tip points upward by default.
+    // Rotate it so the ship points forward along -Z.
+    hull.rotation.x = -Math.PI / 2;
+    hull.position.z = -0.5;
+    group.add(hull);
+
+    const cockpit = new THREE.Mesh(
+        new THREE.SphereGeometry(0.58, 16, 12),
+        darkMaterial
+    );
+
+    cockpit.scale.set(0.85, 0.55, 1.25);
+    cockpit.position.set(0, 0.65, -0.15);
+    group.add(cockpit);
+
+    const wingGeometry = new THREE.BoxGeometry(4.4, 0.13, 1.25);
+
+    const wings = new THREE.Mesh(wingGeometry, hullMaterial);
+    wings.position.set(0, -0.1, 0.7);
+    group.add(wings);
+
+    const engineGeometry = new THREE.CylinderGeometry(
+        0.24, 0.34, 0.8, 12
+    );
+
+    for (const x of [-0.55, 0.55]) {
+        const engine = new THREE.Mesh(engineGeometry, darkMaterial);
+        engine.rotation.x = Math.PI / 2;
+        engine.position.set(x, -0.1, 1.7);
+        group.add(engine);
+
+        const flame = new THREE.Mesh(
+            new THREE.SphereGeometry(0.25, 12, 10),
+            glowMaterial
+        );
+
+        flame.scale.set(0.7, 0.7, 1.8);
+        flame.position.set(x, -0.1, 2.2);
+        group.add(flame);
+    }
+
+    return group;
+}
+
+/* -------------------------------------------------------
+   ROBUST GLB LOADING
+------------------------------------------------------- */
+
+loadButton.addEventListener('click', () => {
+    fileInput.click();
 });
 
+fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files && event.target.files[0];
+
+    // Allow selecting the same file again later.
+    fileInput.value = '';
+
+    if (!file) return;
+
+    const extension = file.name.split('.').pop().toLowerCase();
+
+    if (extension !== 'glb' && extension !== 'gltf') {
+        setStatus('ERROR: PLEASE SELECT A GLB OR GLTF FILE');
+        return;
+    }
+
+    if (extension === 'gltf') {
+        setStatus(
+            'TIP: GLTF FILES MAY NEED SEPARATE TEXTURE FILES. GLB IS RECOMMENDED.'
+        );
+    }
+
+    await loadShipFile(file);
+});
+
+async function loadShipFile(file) {
+    const token = ++currentLoadToken;
+
+    showLoading('Reading spaceship file...', 5);
+    setStatus(`LOADING: ${file.name}`);
+
+    try {
+        // Read the file asynchronously rather than blocking the render loop.
+        const buffer = await file.arrayBuffer();
+
+        if (token !== currentLoadToken) return;
+
+        showLoading('Parsing spaceship model...', 25);
+
+        const loader = new GLTFLoader();
+
+        loader.parse(
+            buffer,
+            '',
+            (gltf) => {
+                if (token !== currentLoadToken) {
+                    disposeObject(gltf.scene);
+                    return;
+                }
+
+                try {
+                    const model = gltf.scene;
+
+                    if (!model || !model.children.length) {
+                        throw new Error('The selected file contains no visible model.');
+                    }
+
+                    prepareAndInstallShip(model);
+
+                    hideLoading();
+
+                    document.getElementById('shipState').textContent =
+                        file.name.length > 16
+                            ? file.name.slice(0, 13) + '...'
+                            : file.name;
+
+                    setStatus('SHIP LOADED SUCCESSFULLY: ' + file.name);
+                } catch (error) {
+                    hideLoading();
+                    console.error(error);
+                    setStatus('MODEL ERROR: ' + error.message);
+                }
+            },
+            (error) => {
+                if (token !== currentLoadToken) return;
+
+                hideLoading();
+                console.error('GLTF parse error:', error);
+
+                setStatus(
+                    'LOAD FAILED. TRY A VALID, SELF-CONTAINED GLB FILE.'
+                );
+            }
+        );
+
+    } catch (error) {
+        if (token !== currentLoadToken) return;
+
+        hideLoading();
+        console.error(error);
+        setStatus('FILE ERROR: ' + error.message);
+    }
+}
+
+function prepareAndInstallShip(model) {
+    // Calculate the original bounds and reject empty/invalid models.
+    model.updateMatrixWorld(true);
+
+    let box = new THREE.Box3().setFromObject(model);
+
+    if (box.isEmpty()) {
+        throw new Error('The model has no measurable geometry.');
+    }
+
+    const originalSize = new THREE.Vector3();
+    box.getSize(originalSize);
+
+    const originalMax = Math.max(
+        originalSize.x,
+        originalSize.y,
+        originalSize.z
+    );
+
+    if (!Number.isFinite(originalMax) || originalMax < 0.00001) {
+        throw new Error('The model has invalid dimensions.');
+    }
+
+    // Keep very large and very small models within a useful size.
+    const desiredSize = 7;
+    const scaleFactor = desiredSize / originalMax;
+
+    model.scale.multiplyScalar(scaleFactor);
+    model.updateMatrixWorld(true);
+
+    // Center the scaled model around the ship's origin.
+    box = new THREE.Box3().setFromObject(model);
+
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    model.position.sub(center);
+    model.updateMatrixWorld(true);
+
+    // Ensure the new model is prepared before touching the current ship.
+    const newContainer = new THREE.Group();
+    newContainer.add(model);
+
+    // Only replace the old ship AFTER successful loading and preparation.
+    if (shipModel) {
+        shipVisual.remove(shipModel);
+        disposeObject(shipModel);
+    }
+
+    if (fallbackShip) {
+        shipVisual.remove(fallbackShip);
+        disposeObject(fallbackShip);
+        fallbackShip = null;
+    }
+
+    shipModel = newContainer;
+    shipVisual.add(shipModel);
+
+    // Reset visual orientation and scale.
+    shipVisual.rotation.set(0, 0, 0);
+    shipVisual.scale.set(1, 1, 1);
+
+    // If the GLB has invisible material settings, make meshes renderable
+    // without replacing their existing materials.
+    shipModel.traverse((object) => {
+        if (!object.isMesh) return;
+
+        object.visible = true;
+        object.frustumCulled = false;
+
+        if (object.material) {
+            const materials = Array.isArray(object.material)
+                ? object.material
+                : [object.material];
+
+            materials.forEach((material) => {
+                if ('visible' in material) material.visible = true;
+                material.needsUpdate = true;
+            });
+        }
+    });
+}
+
+function disposeObject(object) {
+    if (!object) return;
+
+    object.traverse((child) => {
+        if (!child.isMesh) return;
+
+        if (child.geometry) {
+            child.geometry.dispose();
+        }
+
+        if (child.material) {
+            const materials = Array.isArray(child.material)
+                ? child.material
+                : [child.material];
+
+            materials.forEach((material) => {
+                // Do not dispose textures here: GLTF materials may share them.
+                material.dispose();
+            });
+        }
+    });
+}
+
+/* -------------------------------------------------------
+   FLIGHT CONTROLS
+------------------------------------------------------- */
+
+function createControls() {
+    const controlIds = Object.keys(controlState);
+
+    controlIds.forEach((id) => {
+        const button = document.getElementById(id);
+
+        button.addEventListener('pointerdown', (event) => {
+            event.preventDefault();
+            controlState[id] = true;
+            button.classList.add('active');
+            button.setPointerCapture?.(event.pointerId);
+        });
+
+        const release = (event) => {
+            event.preventDefault();
+            controlState[id] = false;
+            button.classList.remove('active');
+        };
+
+        button.addEventListener('pointerup', release);
+        button.addEventListener('pointercancel', release);
+        button.addEventListener('lostpointercapture', () => {
+            controlState[id] = false;
+            button.classList.remove('active');
+        });
+    });
+
+    const throttleUp = document.getElementById('throttleUp');
+    const throttleDown = document.getElementById('throttleDown');
+    const brakeButton = document.getElementById('brakeButton');
+
+    throttleUp.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        throttle = Math.min(100, throttle + 10);
+    });
+
+    throttleDown.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        throttle = Math.max(0, throttle - 10);
+    });
+
+    brakeButton.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        braking = true;
+    });
+
+    const stopBrake = () => braking = false;
+
+    brakeButton.addEventListener('pointerup', stopBrake);
+    brakeButton.addEventListener('pointercancel', stopBrake);
+    brakeButton.addEventListener('lostpointercapture', stopBrake);
+
+    document.getElementById('resetButton').addEventListener('click', resetFlight);
+
+    window.addEventListener('keydown', (event) => {
+        keys[event.code] = true;
+
+        if ([
+            'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+            'Space'
+        ].includes(event.code)) {
+            event.preventDefault();
+        }
+
+        if (event.code === 'KeyW') throttle = Math.min(100, throttle + 2);
+        if (event.code === 'KeyS') throttle = Math.max(0, throttle - 2);
+    });
+
+    window.addEventListener('keyup', (event) => {
+        keys[event.code] = false;
+    });
+
+    window.addEventListener('blur', () => {
+        Object.keys(keys).forEach((key) => keys[key] = false);
+        Object.keys(controlState).forEach((key) => controlState[key] = false);
+        braking = false;
+    });
+}
+
+function resetFlight() {
+    shipRoot.position.set(0, 0, 0);
+    shipRoot.rotation.set(0, 0, 0);
+
+    throttle = 0;
+    speed = 0;
+
+    setStatus('FLIGHT RESET — SYSTEM READY');
+}
+
+/* -------------------------------------------------------
+   FLIGHT PHYSICS
+------------------------------------------------------- */
+
+function updateFlight(delta) {
+    const rotationSpeed = 1.15;
+    const acceleration = 95;
+
+    if (keys.ArrowUp || controlState.pitchUp) {
+        shipRoot.rotateX(rotationSpeed * delta);
+    }
+
+    if (keys.ArrowDown || controlState.pitchDown) {
+        shipRoot.rotateX(-rotationSpeed * delta);
+    }
+
+    if (keys.ArrowLeft || controlState.yawLeft) {
+        shipRoot.rotateY(rotationSpeed * delta);
+    }
+
+    if (keys.ArrowRight || controlState.yawRight) {
+        shipRoot.rotateY(-rotationSpeed * delta);
+    }
+
+    if (keys.KeyA || controlState.rollLeft) {
+        shipRoot.rotateZ(rotationSpeed * delta);
+    }
+
+    if (keys.KeyD || controlState.rollRight) {
+        shipRoot.rotateZ(-rotationSpeed * delta);
+    }
+
+    if (keys.KeyW) {
+        throttle = Math.min(100, throttle + 35 * delta);
+    }
+
+    if (keys.KeyS) {
+        throttle = Math.max(0, throttle - 35 * delta);
+    }
+
+    const targetSpeed = throttle / 100 * maxSpeed;
+
+    if (braking || keys.Space) {
+        speed = Math.max(0, speed - 180 * delta);
+    } else {
+        speed += (targetSpeed - speed) *
+            Math.min(1, acceleration / maxSpeed * delta);
+    }
+
+    // Spaceship forward is its local -Z axis.
+    const forward = new THREE.Vector3(0, 0, -1);
+    forward.applyQuaternion(shipRoot.quaternion);
+
+    shipRoot.position.addScaledVector(forward, speed * delta);
+
+    // Prevent numeric errors from building up during long sessions.
+    if (!Number.isFinite(shipRoot.position.x) ||
+        !Number.isFinite(shipRoot.position.y) ||
+        !Number.isFinite(shipRoot.position.z)) {
+        resetFlight();
+    }
+}
+
+/* -------------------------------------------------------
+   CAMERA
+------------------------------------------------------- */
+
+function updateCamera(delta) {
+    const cameraOffset = new THREE.Vector3(0, 4.2, 13);
+
+    cameraOffset.applyQuaternion(shipRoot.quaternion);
+
+    const desiredPosition = shipRoot.position.clone()
+        .add(cameraOffset);
+
+    // Smooth chase camera.
+    const smoothing = 1 - Math.exp(-4 * delta);
+
+    camera.position.lerp(desiredPosition, smoothing);
+
+    const lookDirection = new THREE.Vector3(0, 0, -1)
+        .applyQuaternion(shipRoot.quaternion);
+
+    const target = shipRoot.position.clone()
+        .addScaledVector(lookDirection, 8);
+
+    camera.lookAt(target);
+}
+
+/* -------------------------------------------------------
+   HUD AND NAVIGATION MAP
+------------------------------------------------------- */
+
+function updateHUD() {
+    document.getElementById('speed').textContent =
+        Math.round(speed).toLocaleString();
+
+    document.getElementById('throttleValue').textContent =
+        Math.round(throttle);
+
+    document.getElementById('altitude').textContent =
+        Math.round(shipRoot.position.length()).toLocaleString();
+
+    let nearest = null;
+    let nearestDistance = Infinity;
+
+    planets.forEach((planet) => {
+        const distance = shipRoot.position.distanceTo(planet.position);
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearest = planet;
+        }
+    });
+
+    document.getElementById('systemName').textContent =
+        nearest && nearestDistance < 120
+            ? nearest.userData.name
+            : 'SOL';
+}
+
+function updateMap() {
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#020916';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid.
+    ctx.strokeStyle = 'rgba(65,135,180,0.25)';
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= w; i += 40) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, h);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(w, i);
+        ctx.stroke();
+    }
+
+    const scale = 0.11;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    // Sun.
+    ctx.fillStyle = '#ffdd77';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    planets.forEach((planet) => {
+        const x = cx + planet.position.x * scale;
+        const y = cy + planet.position.z * scale;
+
+        if (x < 3 || x > w - 3 || y < 3 || y > h - 3) {
+            return;
+        }
+
+        ctx.fillStyle = '#59bfff';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    const sx = cx + shipRoot.position.x * scale;
+    const sy = cy + shipRoot.position.z * scale;
+
+    if (sx >= 0 && sx <= w && sy >= 0 && sy <= h) {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+/* -------------------------------------------------------
+   ANIMATION LOOP
+------------------------------------------------------- */
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    if (!renderer || !scene || !camera) return;
+
+    const delta = Math.min(clock.getDelta(), 0.05);
+
+    updateFlight(delta);
+    updateCamera(delta);
+    updateHUD();
+    updateMap();
+
+    planets.forEach((planet) => {
+        planet.rotation.y += delta * 0.04;
+    });
+
+    try {
+        renderer.render(scene, camera);
+    } catch (error) {
+        console.error('Rendering error:', error);
+        setStatus('RENDERING ERROR — CHECK THE BROWSER CONSOLE');
+    }
+}
+
+function onResize() {
+    if (!camera || !renderer) return;
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio || 1, 1.5)
+    );
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
 </script>
 
 </body>
