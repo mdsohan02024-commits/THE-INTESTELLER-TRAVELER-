@@ -1,1103 +1,1664 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#030711">
+<meta name="viewport"
+ content="width=device-width, initial-scale=1, maximum-scale=1,
+ user-scalable=no, viewport-fit=cover">
+
 <title>THE INTESTELLER TRAVLER</title>
 
 <style>
-:root{
-  --cyan:#77e5ff;
-  --blue:#168dc4;
-  --glass:rgba(5,14,29,.91);
-  --line:rgba(91,194,239,.32);
-  --muted:#91a9c2;
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
-*{box-sizing:border-box}
-html,body,#app{margin:0;width:100%;height:100%;overflow:hidden;background:#02040a;color:#e8f7ff;font-family:Arial,sans-serif}
-body{touch-action:none}
-canvas{display:block}
-button,input,select{font:inherit}
-button{color:#e5f6ff;background:#0a1b30;border:1px solid var(--line);border-radius:5px;padding:9px;cursor:pointer}
-button:active,button.active{background:#125174;border-color:var(--cyan)}
-#app{position:relative}
-#scene{position:absolute;inset:0}
-#hud{position:absolute;inset:0;pointer-events:none}
-.panel{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);border-radius:6px}
-.clickable{pointer-events:auto}
-#brand{position:absolute;left:12px;top:10px;padding:9px 12px}
-#brand b{font-size:clamp(12px,2.1vw,18px);letter-spacing:2px;color:var(--cyan)}
-#brand small{display:block;font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:5px}
-#telemetry{position:absolute;right:12px;top:10px;width:190px;padding:9px 11px;font-size:11px}
-.row{display:flex;justify-content:space-between;gap:10px;margin:4px 0}
-.row span:first-child{color:var(--muted)}
-.row span:last-child{color:var(--cyan);text-align:right}
-#status{position:absolute;top:86px;left:12px;padding:8px 10px;font-size:10px;max-width:48%;color:#bdefff}
-#targetLabel{position:absolute;left:50%;top:16%;transform:translateX(-50%);text-align:center;font-size:11px;letter-spacing:2px;color:#bcefff;text-shadow:0 0 10px #197ba5;white-space:nowrap}
-#targetLabel small{display:block;color:#9db9d2;font-size:10px;margin-top:5px;letter-spacing:1px}
-#reticle{position:absolute;left:50%;top:48%;width:30px;height:30px;border:1px solid #7de4ff7a;border-radius:50%;transform:translate(-50%,-50%)}
-#reticle:before,#reticle:after{content:"";position:absolute;background:#7de4ff}
-#reticle:before{width:42px;height:1px;left:-7px;top:14px}
-#reticle:after{height:42px;width:1px;top:-7px;left:14px}
-#topButtons{position:absolute;left:12px;top:86px;display:flex;gap:6px}
-#topButtons button{font-size:10px;padding:8px 10px}
-#destinationPanel{position:absolute;top:126px;left:12px;width:min(300px,72vw);max-height:calc(100% - 260px);overflow:auto;padding:11px;display:none}
-#destinationPanel h3{font-size:12px;letter-spacing:2px;color:var(--cyan);margin:0 0 10px}
-#destinationPanel p{font-size:10px;color:var(--muted);line-height:1.5}
-#search{width:100%;padding:9px;border:1px solid var(--line);background:#06101e;color:white;border-radius:4px;margin-bottom:8px}
-#categories{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
-#categories button{font-size:10px;flex:1;min-width:65px;padding:7px 4px}
-#destList{display:flex;flex-direction:column;gap:5px}
-.dest{display:block;width:100%;text-align:left;padding:9px}
-.dest strong{display:block;font-size:11px}
-.dest small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
-#selectedInfo{font-size:10px;color:#b9e9ff;line-height:1.6;padding:8px;background:#061323;margin-top:8px}
-#navActions{display:flex;gap:6px;margin-top:8px}
-#navActions button{flex:1;font-size:10px}
-#mapPanel{position:absolute;right:12px;top:145px;width:180px;padding:9px;display:none}
-#mapPanel h3{font-size:11px;color:var(--cyan);margin:0 0 7px}
-#mapCanvas{width:100%;height:125px;border:1px solid var(--line);background:#020914}
-#mapPanel p{font-size:9px;line-height:1.4;color:var(--muted)}
-#controls{position:absolute;bottom:9px;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 10px;gap:8px}
-.ctrlGroup{display:flex;align-items:flex-end;gap:6px;pointer-events:auto}
-.ctrlColumn{display:flex;flex-direction:column;gap:5px}
-.ctrlRow{display:flex;gap:5px}
-.ctrl{width:45px;height:42px;padding:5px;font-size:14px;touch-action:none;user-select:none}
-.ctrl.wide{width:74px;font-size:10px}
-.ctrl.thrust{width:70px;font-size:10px;background:#084268}
-.ctrl.held{background:#14668a;border-color:#9cecff}
-#throttleBox{width:112px;padding:8px;text-align:center;pointer-events:auto}
-#throttleBox label{font-size:9px;color:var(--muted)}
-#throttle{width:100%;accent-color:var(--cyan);margin:10px 0 5px}
-#throttleValue{font-size:11px;color:var(--cyan)}
-#helpText{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);font-size:9px;color:#9db6cc;text-align:center;white-space:nowrap}
-#notice{position:absolute;top:29%;left:50%;transform:translateX(-50%);display:none;padding:10px 14px;font-size:11px;text-align:center;max-width:85%}
-#warpFX{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 0%,#13517b22 48%,#45caff35 100%)}
-#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#02040a;z-index:10;text-align:center;color:var(--cyan);font-size:13px;letter-spacing:2px}
-#loading small{display:block;font-size:10px;letter-spacing:0;color:var(--muted);margin-top:10px}
-#startPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,92vw);padding:18px;z-index:12}
-#startPanel h2{font-size:18px;letter-spacing:2px;color:var(--cyan);margin:0 0 10px}
-#startPanel p,#startPanel li{font-size:11px;color:#b7cadc;line-height:1.6}
-#startPanel ul{padding-left:18px}
-#startButton{width:100%;background:#075a83;border-color:#67ddff;padding:12px}
-#mobileWarning{display:none;position:fixed;inset:0;background:#02040a;z-index:100;align-items:center;justify-content:center;text-align:center;padding:25px}
-@media(orientation:portrait){#mobileWarning{display:flex}}
-@media(max-height:450px){
- #brand{top:5px;left:6px;padding:6px 8px}
- #brand small{margin-top:2px;font-size:8px}
- #telemetry{top:5px;right:6px;padding:5px 7px;width:155px;font-size:9px}
- .row{margin:2px 0}
- #topButtons{top:65px;left:6px}
- #status{top:65px;left:6px;padding:5px;font-size:9px}
- #destinationPanel{top:100px;left:6px;max-height:calc(100% - 180px)}
- #mapPanel{top:100px;right:6px}
- #controls{bottom:4px;padding:0 5px;gap:4px}
- .ctrl{width:37px;height:35px}
- .ctrl.wide{width:59px}
- .ctrl.thrust{width:58px}
- #throttleBox{width:85px;padding:5px}
- #helpText{bottom:78px}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #02040a;
+  color: #e9f8ff;
+  font-family: Arial, sans-serif;
+  touch-action: none;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.panel {
+  pointer-events: auto;
+  background: rgba(4, 17, 33, 0.88);
+  border: 1px solid rgba(95, 220, 255, 0.6);
+  border-radius: 10px;
+  backdrop-filter: blur(7px);
+}
+
+button {
+  color: #eafaff;
+  background: rgba(5, 35, 57, 0.95);
+  border: 1px solid #58d9ff;
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 12px;
+  font-weight: bold;
+  min-height: 38px;
+  touch-action: manipulation;
+}
+
+button:active {
+  background: #086789;
+}
+
+#brand {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  padding: 9px;
+  color: #78eaff;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 1px;
+  max-width: 62%;
+}
+
+#status {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  padding: 7px;
+  font-size: 10px;
+  text-align: right;
+  line-height: 1.5;
+}
+
+#message {
+  position: absolute;
+  left: 50%;
+  top: 59px;
+  transform: translateX(-50%);
+  padding: 6px 9px;
+  font-size: 10px;
+  white-space: nowrap;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#destBtn {
+  position: absolute;
+  top: 101px;
+  left: 9px;
+  pointer-events: auto;
+}
+
+#mapBtn {
+  position: absolute;
+  top: 101px;
+  right: 9px;
+  pointer-events: auto;
+}
+
+#destPanel {
+  display: none;
+  position: absolute;
+  top: 145px;
+  left: 9px;
+  width: min(280px, 78vw);
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 10px;
+  pointer-events: auto;
+}
+
+#destPanel h3 {
+  color: #78eaff;
+  font-size: 12px;
+  margin: 4px 0 8px;
+}
+
+.destrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.destrow button {
+  flex: 1 1 42%;
+  text-align: left;
+}
+
+#mapPanel {
+  display: none;
+  position: absolute;
+  top: 145px;
+  right: 9px;
+  width: min(300px, 75vw);
+  padding: 9px;
+  pointer-events: auto;
+}
+
+#mapCanvas {
+  width: 100%;
+  height: 125px;
+  display: block;
+  background: #020915;
+  border: 1px solid #244c68;
+  border-radius: 7px;
+}
+
+#mapPanel p {
+  font-size: 10px;
+  margin-bottom: 0;
+}
+
+#leftControls {
+  position: absolute;
+  left: 10px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: 43px 43px 43px;
+  grid-template-rows: 42px 42px;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+#leftControls button {
+  min-height: 42px;
+  padding: 0;
+  font-size: 19px;
+}
+
+#upBtn {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#leftBtn {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#downBtn {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#rightBtn {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+#rightControls {
+  position: absolute;
+  right: 10px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(64px, auto));
+  gap: 5px;
+  pointer-events: auto;
+}
+
+#rightControls button {
+  min-width: 64px;
+  padding: 8px 6px;
+  font-size: 10px;
+}
+
+#lookHint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+#fileInput {
+  display: none;
+}
+
+#loadShip {
+  position: absolute;
+  right: 9px;
+  top: 145px;
+  display: none;
+  pointer-events: auto;
+}
+
+#modalShade {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+#modal {
+  width: min(360px, 100%);
+  padding: 16px;
+  pointer-events: auto;
+}
+
+#modal h2 {
+  color: #78eaff;
+  font-size: 16px;
+}
+
+#modal p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (orientation: portrait) {
+  #lookHint {
+    bottom: 105px;
+  }
+
+  #leftControls {
+    grid-template-columns: 38px 38px 38px;
+    grid-template-rows: 38px 38px;
+  }
+
+  #leftControls button {
+    min-height: 38px;
+  }
+
+  #rightControls button {
+    min-width: 55px;
+    font-size: 9px;
+  }
 }
 </style>
-</head>
-
-<body>
-<div id="app">
- <div id="scene"></div>
- <div id="hud">
-  <div id="brand" class="panel">
-   <b>THE INTESTELLER TRAVLER</b>
-   <small>INTERSTELLAR FLIGHT SYSTEM</small>
-  </div>
-
-  <div id="telemetry" class="panel">
-   <div class="row"><span>VELOCITY</span><span id="speed">0 m/s</span></div>
-   <div class="row"><span>THROTTLE</span><span id="throttleRead">0%</span></div>
-   <div class="row"><span>NEAREST BODY</span><span id="nearest">—</span></div>
-   <div class="row"><span>ALTITUDE</span><span id="altitude">—</span></div>
-   <div class="row"><span>FLIGHT MODE</span><span id="mode">MANUAL</span></div>
-   <div class="row"><span>GRAVITY</span><span id="gravityRead">ON</span></div>
-  </div>
-
-  <div id="status" class="panel">FLIGHT COMPUTER ONLINE</div>
-
-  <div id="topButtons" class="clickable">
-   <button id="destButton">DESTINATIONS ▾</button>
-   <button id="mapButton">STAR MAP</button>
-   <button id="trajectoryButton">TRAJECTORY ON</button>
-  </div>
-
-  <div id="targetLabel">FREE FLIGHT<small>CAMERA: CHASE / TOUCH TO ORBIT</small></div>
-  <div id="reticle"></div>
-  <div id="warpFX"></div>
-  <div id="notice" class="panel"></div>
-
-  <div id="destinationPanel" class="panel clickable">
-   <h3>GALACTIC NAVIGATION</h3>
-   <input id="search" placeholder="Search stars, planets, systems...">
-   <div id="categories">
-    <button class="active" data-category="all">ALL</button>
-    <button data-category="stars">STARS</button>
-    <button data-category="solar">SOLAR SYSTEM</button>
-    <button data-category="exoplanets">EXOPLANETS</button>
-    <button data-category="missions">MISSIONS</button>
-   </div>
-   <p>Star distances are shown in light-years. Interstellar positions are illustrative; the local solar-system view uses a separate compressed scale.</p>
-   <div id="destList"></div>
-   <div id="selectedInfo">Select a destination to view its information.</div>
-   <div id="navActions">
-    <button id="setTarget">SET TARGET</button>
-    <button id="warpButton">WARP</button>
-   </div>
-  </div>
-
-  <div id="mapPanel" class="panel clickable">
-   <h3>GALACTIC OVERVIEW</h3>
-   <canvas id="mapCanvas" width="360" height="250"></canvas>
-   <p>Top-down schematic. Marker positions are for navigation, not an exact astronomical chart.</p>
-   <button id="mapTarget" style="width:100%;font-size:10px">CENTER ON TARGET</button>
-  </div>
-
-  <div id="controls">
-   <div class="ctrlGroup">
-    <div class="ctrlColumn">
-     <button class="ctrl" data-control="pitchUp">▲</button>
-     <div class="ctrlRow">
-      <button class="ctrl" data-control="yawLeft">◀</button>
-      <button class="ctrl" data-control="pitchDown">▼</button>
-      <button class="ctrl" data-control="yawRight">▶</button>
-     </div>
-    </div>
-    <div class="ctrlColumn">
-     <button class="ctrl" data-control="rollLeft">⟲</button>
-     <button class="ctrl" data-control="rollRight">⟳</button>
-    </div>
-   </div>
-
-   <div id="throttleBox" class="panel">
-    <label for="throttle">ENGINE THROTTLE</label>
-    <input id="throttle" type="range" min="0" max="100" value="0">
-    <div id="throttleValue">0%</div>
-    <button id="brake" style="width:100%;font-size:10px;margin-top:5px">BRAKE</button>
-   </div>
-
-   <div class="ctrlGroup">
-    <div class="ctrlColumn">
-     <button class="ctrl thrust" data-control="forward">THRUST ▲</button>
-     <button class="ctrl thrust" data-control="reverse">REVERSE ▼</button>
-    </div>
-    <div class="ctrlColumn">
-     <button id="cameraButton" class="ctrl wide">CAMERA</button>
-     <button id="resetButton" class="ctrl wide">RESET</button>
-    </div>
-   </div>
-  </div>
-
-  <div id="helpText">DRAG SCREEN TO ORBIT CAMERA · W/S THRUST · A/D YAW · Q/E ROLL · SPACE BRAKE</div>
- </div>
-
- <div id="loading"><div>INITIALIZING FLIGHT SYSTEMS<small id="loadText">Loading 3D universe...</small></div></div>
-
- <div id="startPanel" class="panel">
-  <h2>FLIGHT DECK</h2>
-  <p>Explore a 3D universe, fly with thrust and inertia, track a projected trajectory, and navigate between nearby stars and known planetary systems.</p>
-  <ul>
-   <li>Drag anywhere on the scene to orbit the chase camera.</li>
-   <li>Touch the control buttons to rotate and accelerate.</li>
-   <li>Open Destinations to browse stars, planets, exoplanets, and missions.</li>
-   <li>Gravity and the trajectory prediction are simplified game physics, not mission-grade orbital calculations.</li>
-  </ul>
-  <button id="startButton">ENTER FLIGHT DECK</button>
- </div>
-</div>
-
-<div id="mobileWarning">
- <div><div style="font-size:40px">↻</div><h2>ROTATE DEVICE</h2><p>Turn your phone sideways to play.</p></div>
-</div>
 
 <script type="importmap">
 {
- "imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
- }
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
 }
 </script>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div class="hud">
+
+  <div id="brand" class="panel">
+    THE INTESTELLER TRAVLER
+  </div>
+
+  <div id="status" class="panel">
+    SYSTEM: STARTING
+  </div>
+
+  <div id="message" class="panel">
+    Drag screen to look around
+  </div>
+
+  <button id="destBtn">DESTINATIONS ▼</button>
+
+  <div id="destPanel" class="panel">
+
+    <h3>SOLAR SYSTEM</h3>
+
+    <div class="destrow">
+      <button data-target="Sun">Sun</button>
+      <button data-target="Mercury">Mercury</button>
+      <button data-target="Venus">Venus</button>
+      <button data-target="Earth">Earth</button>
+      <button data-target="Moon">Moon</button>
+      <button data-target="Mars">Mars</button>
+      <button data-target="Jupiter">Jupiter</button>
+      <button data-target="Saturn">Saturn</button>
+      <button data-target="Uranus">Uranus</button>
+      <button data-target="Neptune">Neptune</button>
+    </div>
+
+    <h3>EXOPLANETS</h3>
+
+    <div class="destrow">
+      <button data-target="Kepler-22b">Kepler-22b</button>
+      <button data-target="Proxima b">Proxima b</button>
+      <button data-target="TRAPPIST-1e">TRAPPIST-1e</button>
+      <button data-target="Deep Space">Deep Space</button>
+    </div>
+
+    <h3>MISSIONS</h3>
+
+    <div class="destrow">
+      <button data-target="Orbit Earth">Earth Orbit</button>
+      <button data-target="Solar System">Solar System</button>
+    </div>
+
+    <button id="closeDest" style="width:100%">
+      CLOSE
+    </button>
+
+  </div>
+
+  <button id="mapBtn">SCHEMATIC MAP</button>
+
+  <div id="mapPanel" class="panel">
+    <canvas id="mapCanvas" width="600" height="250"></canvas>
+    <p>Navigation map — not to scale.</p>
+    <button id="closeMap" style="width:100%">CLOSE MAP</button>
+  </div>
+
+  <button id="loadShip">CHOOSE SHIP FILE</button>
+
+  <input
+    id="fileInput"
+    type="file"
+    accept=".glb,.gltf,model/gltf-binary,model/gltf+json"
+  >
+
+  <div id="leftControls">
+    <button id="upBtn">▲</button>
+    <button id="leftBtn">◀</button>
+    <button id="downBtn">▼</button>
+    <button id="rightBtn">▶</button>
+  </div>
+
+  <div id="rightControls">
+    <button id="thrustBtn">THRUST</button>
+    <button id="reverseBtn">REVERSE</button>
+    <button id="cameraBtn">FREE LOOK</button>
+    <button id="resetBtn">RESET</button>
+  </div>
+
+  <div id="lookHint">
+    DRAG SCREEN TO LOOK AROUND
+  </div>
+
+</div>
+
+<div id="modalShade">
+  <div id="modal" class="panel">
+    <h2>SHIP MODEL NOT LOADED</h2>
+    <p>
+      Google Drive may not provide a direct 3D file to the browser.
+      Choose the original GLB file from your phone if the ship
+      does not appear.
+    </p>
+    <button id="modalChoose">CHOOSE GLB FILE</button>
+    <button id="modalClose">CONTINUE WITH FALLBACK SHIP</button>
+  </div>
+</div>
 
 <script type="module">
-import * as THREE from "three";
-import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-/* =========================================================
-   SHIP MODEL
-   Replace the placeholder below with your ixsenterprise.glb
-   direct-download URL.
+/* ---------------------------------
+   THREE.JS INITIALIZATION
+--------------------------------- */
 
-   Google Drive file ID example:
-   https://drive.google.com/file/d/1fClk74KK4ZZNe1cmmebS3bIR2LylhBXS/view?usp=drivesdk
+const canvas = document.getElementById('game');
 
-   A Google Drive preview/share URL may not work as a raw GLB.
-   CORS restrictions or a confirmation page can block loading.
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  powerPreference: 'high-performance'
+});
 
-   A 189 MB model is very large for mobile. Compress/optimize
-   it before using it in a mobile browser.
-   ========================================================= */
-const SHIP_MODEL_URL =
- "https://drive.google.com/uc?export=download&id=YOUR_GOOGLE_DRIVE_FILE_ID";
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 
-/* Public texture maps. Network access is required.
-   If a remote image fails, the procedural material remains. */
-const TEX = "https://www.solarsystemscope.com/textures/download/";
+const scene = new THREE.Scene();
 
-const $ = id => document.getElementById(id);
-const app = $("app");
-const sceneRoot = $("scene");
-const loaderScreen = $("loading");
-const loadText = $("loadText");
-const status = $("status");
-const notice = $("notice");
+scene.background = new THREE.Color(0x02040a);
 
-let scene, camera, renderer, clock, shipRoot, shipVisual;
-let earthTexture, moonTexture, marsTexture, jupiterTexture, saturnTexture;
-let shipLoaded = false;
-let targetId = "sun";
-let selectedId = "sun";
-let currentCategory = "all";
-let trajectoryVisible = true;
-let gravityEnabled = true;
-let warp = null;
-let noticeTimer;
-let lastFrame = 0;
-let cameraYaw = 0;
-let cameraPitch = 0.22;
-let cameraDistance = 25;
-let drag = null;
-let cameraMode = 0;
+const camera = new THREE.PerspectiveCamera(
+  65,
+  innerWidth / innerHeight,
+  0.1,
+  100000
+);
 
-const velocity = new THREE.Vector3();
-const acceleration = new THREE.Vector3();
-const temp = new THREE.Vector3();
-const forward = new THREE.Vector3(0,0,-1);
-const cameraWanted = new THREE.Vector3();
-const cameraLook = new THREE.Vector3();
-const gravityBodies = [];
-const objects = new Map();
-const held = {};
-const keys = {};
+camera.position.set(0, 4, 18);
 
-const sim = {
- throttle:0,
- thrust:18,
- reverse:12,
- rotation:1.0,
- brake:false,
- time:0,
- warpProgress:0,
- lastTrajectory:0
-};
+scene.add(new THREE.HemisphereLight(
+  0xa9d9ff,
+  0x111321,
+  1.4
+));
 
-/*
-  Catalog distances are based on commonly published approximate
-  distances. The wide-galaxy map uses illustrative coordinates,
-  not a precision 3D stellar catalogue.
+const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
+sunLight.position.set(500, 300, -1000);
+scene.add(sunLight);
 
-  The Solar System mode is intentionally compressed so planets
-  remain visible on a phone. It is NOT a single uniform scale.
-*/
-const catalog = [
- {id:"sun",name:"Sun",type:"stars",kind:"G2V star",distance:0,category:"Local star",map:[0,0],color:0xffd16b,lum:2,solar:true,description:"The star at the center of our Solar System."},
- {id:"mercury",name:"Mercury",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[0.5,0.3],color:0xa5a39c,solar:true,description:"The innermost planet."},
- {id:"venus",name:"Venus",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[0.7,-0.2],color:0xe6bd83,solar:true,description:"A rocky world with a dense atmosphere."},
- {id:"earth",name:"Earth",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[1,0.2],color:0x2c91ff,solar:true,description:"Our home planet."},
- {id:"moon",name:"Moon",type:"solar",kind:"Natural satellite",distance:0,category:"Solar System",map:[1.1,0.3],color:0xbfc5cc,solar:true,description:"Earth's natural satellite."},
- {id:"mars",name:"Mars",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[1.5,0.5],color:0xc96f51,solar:true,description:"The red planet."},
- {id:"jupiter",name:"Jupiter",type:"solar",kind:"Gas giant",distance:0,category:"Solar System",map:[2.2,-0.3],color:0xd5b18c,solar:true,description:"The largest planet in the Solar System."},
- {id:"saturn",name:"Saturn",type:"solar",kind:"Gas giant",distance:0,category:"Solar System",map:[3,0.1],color:0xd9c08b,solar:true,description:"A gas giant with a spectacular ring system."},
- {id:"uranus",name:"Uranus",type:"solar",kind:"Ice giant",distance:0,category:"Solar System",map:[3.8,-0.5],color:0x91e3e9,solar:true,description:"A distant ice giant."},
- {id:"neptune",name:"Neptune",type:"solar",kind:"Ice giant",distance:0,category:"Solar System",map:[4.5,0.4],color:0x376de8,solar:true,description:"A distant blue ice giant."},
+const fillLight = new THREE.PointLight(0x58bfff, 1, 4000);
+fillLight.position.set(-20, 30, 40);
+scene.add(fillLight);
 
- {id:"proxima",name:"Proxima Centauri",type:"stars",kind:"M-type red dwarf",distance:4.2465,category:"Alpha Centauri system",map:[4.1,1.1],color:0xff7958,lum:0.7,description:"The nearest known star to the Sun."},
- {id:"alpha",name:"Alpha Centauri A/B",type:"stars",kind:"Binary star system",distance:4.37,category:"Alpha Centauri system",map:[4.3,0.9],color:0xffd89a,lum:1.4,description:"A nearby binary star system."},
- {id:"barnard",name:"Barnard's Star",type:"stars",kind:"Red dwarf",distance:5.96,category:"Solar neighborhood",map:[-5.1,2.2],color:0xff806b,lum:0.65,description:"A nearby red dwarf with known exoplanets."},
- {id:"wolf359",name:"Wolf 359",type:"stars",kind:"Red dwarf",distance:7.86,category:"Solar neighborhood",map:[6.7,-3.0],color:0xff725e,lum:0.6,description:"A nearby faint red dwarf."},
- {id:"lalande",name:"Lalande 21185",type:"stars",kind:"Red dwarf",distance:8.31,category:"Solar neighborhood",map:[-2.8,-7.1],color:0xff9274,lum:0.6,description:"A nearby red dwarf star."},
- {id:"sirius",name:"Sirius",type:"stars",kind:"A-type star system",distance:8.6,category:"Canis Major",map:[7.7,4.2],color:0xb8d7ff,lum:1.8,description:"The brightest star in Earth's night sky."},
- {id:"ross154",name:"Ross 154",type:"stars",kind:"Red dwarf",distance:9.69,category:"Solar neighborhood",map:[-8.5,3.4],color:0xff755d,lum:0.6,description:"A nearby red dwarf."},
- {id:"epsiloneri",name:"Epsilon Eridani",type:"stars",kind:"K-type star",distance:10.5,category:"Eridanus",map:[-3.2,9.1],color:0xffd18a,lum:1.0,description:"A nearby young star with a debris disk."},
- {id:"tau",name:"Tau Ceti",type:"stars",kind:"G-type star",distance:11.9,category:"Cetus",map:[9.2,-7.4],color:0xffe2a8,lum:1.0,description:"A nearby Sun-like star."},
- {id:"trappist",name:"TRAPPIST-1",type:"stars",kind:"Ultra-cool dwarf",distance:39.5,category:"Aquarius",map:[14,9],color:0xff795c,lum:0.7,description:"A compact system with seven known Earth-sized planets."},
- {id:"kepler22",name:"Kepler-22",type:"stars",kind:"G-type star",distance:620,category:"Cygnus",map:[80,35],color:0xffdf9b,lum:1.0,description:"A star known to host the exoplanet Kepler-22 b."},
- {id:"kepler452",name:"Kepler-452",type:"stars",kind:"G-type star",distance:1800,category:"Cygnus",map:[-130,60],color:0xffd99b,lum:1.0,description:"A Sun-like star with the exoplanet Kepler-452 b."},
 
- {id:"trappist1b",name:"TRAPPIST-1 b",type:"exoplanets",kind:"Exoplanet",distance:39.5,category:"TRAPPIST-1",host:"TRAPPIST-1",color:0xb87b65,description:"A rocky planet in the TRAPPIST-1 system."},
- {id:"trappist1e",name:"TRAPPIST-1 e",type:"exoplanets",kind:"Exoplanet",distance:39.5,category:"TRAPPIST-1",host:"TRAPPIST-1",color:0x6496b5,description:"A rocky exoplanet often discussed in habitability research."},
- {id:"proxb",name:"Proxima Centauri b",type:"exoplanets",kind:"Exoplanet",distance:4.2465,category:"Proxima Centauri",host:"Proxima Centauri",color:0x8f927e,description:"A planet orbiting the nearest star to the Sun."},
- {id:"barnardb",name:"Barnard's Star b",type:"exoplanets",kind:"Exoplanet candidate",distance:5.96,category:"Barnard's Star",host:"Barnard's Star",color:0x8d786b,description:"A planet reported around Barnard's Star; catalogue status may change."},
- {id:"kepler22b",name:"Kepler-22 b",type:"exoplanets",kind:"Exoplanet",distance:620,category:"Kepler-22",host:"Kepler-22",color:0x5e9b9b,description:"A confirmed exoplanet orbiting Kepler-22."},
- {id:"kepler452b",name:"Kepler-452 b",type:"exoplanets",kind:"Exoplanet",distance:1800,category:"Kepler-452",host:"Kepler-452",color:0x8e967b,description:"A confirmed exoplanet orbiting Kepler-452."},
+/* ---------------------------------
+   SHIP AND FALLBACK MODEL
+--------------------------------- */
 
- {id:"voyager1",name:"Voyager 1",type:"missions",kind:"NASA spacecraft",distance:0,category:"Interstellar mission",color:0xc0d6ff,description:"NASA's Voyager 1 spacecraft, now in interstellar space."},
- {id:"cassini",name:"Cassini",type:"missions",kind:"NASA mission",distance:0,category:"Saturn exploration",color:0xc9b78e,description:"NASA's Cassini mission explored Saturn and its moons."},
- {id:"jwst",name:"James Webb Space Telescope",type:"missions",kind:"Space telescope",distance:0,category:"Observatory",color:0xd2c7a2,description:"An infrared space observatory."}
+const shipRoot = new THREE.Group();
+scene.add(shipRoot);
+
+let shipModel = null;
+let shipLoadSucceeded = false;
+
+function createFallbackShip() {
+
+  const group = new THREE.Group();
+
+  const body = new THREE.Mesh(
+    new THREE.ConeGeometry(0.9, 4.8, 10),
+    new THREE.MeshStandardMaterial({
+      color: 0xc0d3e2,
+      metalness: 0.65,
+      roughness: 0.3
+    })
+  );
+
+  body.rotation.x = -Math.PI / 2;
+  body.position.z = -1.1;
+  group.add(body);
+
+  const wing = new THREE.Mesh(
+    new THREE.BoxGeometry(5.8, 0.15, 1.1),
+    new THREE.MeshStandardMaterial({
+      color: 0x386d96,
+      metalness: 0.6,
+      roughness: 0.35
+    })
+  );
+
+  wing.position.z = 0.25;
+  group.add(wing);
+
+  const cockpit = new THREE.Mesh(
+    new THREE.SphereGeometry(0.42, 24, 18),
+    new THREE.MeshStandardMaterial({
+      color: 0x39dfff,
+      emissive: 0x083e66,
+      metalness: 0.3,
+      roughness: 0.15
+    })
+  );
+
+  cockpit.scale.set(0.8, 0.65, 1.3);
+  cockpit.position.set(0, 0.4, -1.25);
+  group.add(cockpit);
+
+  const engineMaterial = new THREE.MeshBasicMaterial({
+    color: 0x42dcff
+  });
+
+  for (const x of [-0.45, 0.45]) {
+
+    const engine = new THREE.Mesh(
+      new THREE.SphereGeometry(0.18, 12, 12),
+      engineMaterial
+    );
+
+    engine.position.set(x, -0.05, 1.4);
+    group.add(engine);
+  }
+
+  return group;
+}
+
+const fallbackShip = createFallbackShip();
+shipRoot.add(fallbackShip);
+
+
+/* ---------------------------------
+   LOAD YOUR GOOGLE DRIVE SHIP
+--------------------------------- */
+
+const driveId = '1fClk74KK4ZZNe1cmmebS3bIR2LylhBXS';
+
+const driveUrls = [
+  `https://drive.google.com/uc?export=download&id=${driveId}`,
+  `https://drive.google.com/uc?id=${driveId}&export=download`
 ];
 
-/* Display scale is deliberately different for local and stellar travel.
-   Interstellar light-years are compressed logarithmically for the map.
-   Actual distances are always displayed separately. */
-function starPosition(item){
- if(item.solar){
-  const local={
-   sun:[0,0,0],mercury:[12,0,0],venus:[18,0,0],
-   earth:[26,0,0],moon:[27.8,0.2,0],
-   mars:[35,0,0],jupiter:[57,0,0],saturn:[78,0,0],
-   uranus:[99,0,0],neptune:[120,0,0]
-  };
-  const p=local[item.id]||[0,0,0];
-  return new THREE.Vector3(...p);
- }
- if(item.type==="missions"){
-  const mission={
-   voyager1:[-32,8,-18],cassini:[-76,2,0],jwst:[-18,5,7]
-  }[item.id]||[0,0,0];
-  return new THREE.Vector3(...mission);
- }
- if(item.host){
-  const host=catalog.find(x=>x.name===item.host);
-  const base=host?starPosition(host):new THREE.Vector3();
-  const offset={
-   trappist1b:[1.5,0,0],trappist1e:[2,0,0],
-   proxb:[1.4,0,0],barnardb:[1.5,0,0],
-   kepler22b:[1.5,0,0],kepler452b:[1.5,0,0]
-  }[item.id]||[1,0,0];
-  return base.add(new THREE.Vector3(...offset));
- }
- const map=item.map||[0,0];
- const r=22+Math.log10(1+Math.max(0,item.distance))*34;
- return new THREE.Vector3(map[0]*r/12,map[1]*r/12,-r);
+const loader = new GLTFLoader();
+
+function setMessage(text) {
+  document.getElementById('message').textContent = text;
 }
 
-function formatDistance(n){
- if(!Number.isFinite(n))return "—";
- if(n>=1e9)return (n/1e9).toFixed(2)+" billion km";
- if(n>=1e6)return (n/1e6).toFixed(2)+" million km";
- if(n>=1000)return (n/1000).toFixed(1)+" thousand km";
- return n.toFixed(0)+" km";
-}
-function ly(n){return n===0?"Solar System":n+" light-years";}
-function say(text){
- notice.textContent=text;
- notice.style.display="block";
- clearTimeout(noticeTimer);
- noticeTimer=setTimeout(()=>notice.style.display="none",2800);
-}
-function setStatus(text){status.textContent=text}
+function prepareShip(gltf) {
 
-function init(){
- scene=new THREE.Scene();
- scene.background=new THREE.Color(0x02040a);
- scene.fog=new THREE.FogExp2(0x02040a,0.00016);
-
- camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.05,100000);
- renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
- renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
- renderer.setSize(innerWidth,innerHeight);
- renderer.outputColorSpace=THREE.SRGBColorSpace;
- renderer.toneMapping=THREE.ACESFilmicToneMapping;
- renderer.toneMappingExposure=1.22;
- sceneRoot.appendChild(renderer.domElement);
-
- scene.add(new THREE.HemisphereLight(0xa5d9ff,0x171b2a,1.4));
- const sunLight=new THREE.PointLight(0xffedc9,2200,0,1.5);
- sunLight.position.set(0,0,0);
- scene.add(sunLight);
-
- const fill=new THREE.DirectionalLight(0x789ed8,1.1);
- fill.position.set(-100,60,100);
- scene.add(fill);
-
- createStarfield();
- createGalaxyDisc();
- createCatalogObjects();
- createShip();
- loadTextures();
- loadShipModel();
-
- clock=new THREE.Clock();
- bindUI();
- populateDestinations();
- drawMap();
- updateTargetLabel();
- loaderScreen.style.display="none";
- setStatus("FLIGHT COMPUTER ONLINE · MANUAL FLIGHT");
- animate();
-}
-
-function createStarfield(){
- const count=10000;
- const p=new Float32Array(count*3);
- const colors=new Float32Array(count*3);
- for(let i=0;i<count;i++){
-  const r=900+Math.random()*4500;
-  const a=Math.random()*Math.PI*2;
-  const z=(Math.random()-.5)*2;
-  const h=Math.sqrt(1-z*z);
-  p[i*3]=r*h*Math.cos(a);
-  p[i*3+1]=r*z;
-  p[i*3+2]=r*h*Math.sin(a);
-  const c=new THREE.Color().setHSL(.52+Math.random()*.12,.25,.55+Math.random()*.45);
-  colors[i*3]=c.r;colors[i*3+1]=c.g;colors[i*3+2]=c.b;
- }
- const g=new THREE.BufferGeometry();
- g.setAttribute("position",new THREE.BufferAttribute(p,3));
- g.setAttribute("color",new THREE.BufferAttribute(colors,3));
- scene.add(new THREE.Points(g,new THREE.PointsMaterial({
-  size:1.1,vertexColors:true,sizeAttenuation:true
- })));
-
- // A broad, subtle galactic band made from distant points.
- const bandCount=6500;
- const bp=new Float32Array(bandCount*3);
- for(let i=0;i<bandCount;i++){
-  const a=Math.random()*Math.PI*2;
-  const r=160+Math.random()*1700;
-  bp[i*3]=Math.cos(a)*r;
-  bp[i*3+1]=(Math.random()-.5)*65;
-  bp[i*3+2]=Math.sin(a)*r;
- }
- const bg=new THREE.BufferGeometry();
- bg.setAttribute("position",new THREE.BufferAttribute(bp,3));
- scene.add(new THREE.Points(bg,new THREE.PointsMaterial({
-  color:0x566caa,size:1.3,transparent:true,opacity:.36
- })));
-}
-
-function createGalaxyDisc(){
- const arms=4;
- const count=6500;
- const p=new Float32Array(count*3);
- const col=new Float32Array(count*3);
- for(let i=0;i<count;i++){
-  const arm=i%arms;
-  const r=30+Math.random()*550;
-  const angle=arm*Math.PI*2/arms+r*.012+(Math.random()-.5)*.8;
-  p[i*3]=Math.cos(angle)*r;
-  p[i*3+1]=(Math.random()-.5)*r*.09;
-  p[i*3+2]=Math.sin(angle)*r;
-  const c=new THREE.Color().setHSL(.56+Math.random()*.13,.5,.25+Math.random()*.35);
-  col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
- }
- const g=new THREE.BufferGeometry();
- g.setAttribute("position",new THREE.BufferAttribute(p,3));
- g.setAttribute("color",new THREE.BufferAttribute(col,3));
- const cloud=new THREE.Points(g,new THREE.PointsMaterial({
-  size:1.2,vertexColors:true,transparent:true,opacity:.34
- }));
- cloud.rotation.x=.28;
- scene.add(cloud);
-}
-
-function addSphere(id,position,radius,color,texture){
- const material=new THREE.MeshStandardMaterial({
-  color,roughness:.9,metalness:0
- });
- if(texture)material.map=texture;
- const mesh=new THREE.Mesh(new THREE.SphereGeometry(radius,48,32),material);
- mesh.position.copy(position);
- scene.add(mesh);
- objects.set(id,mesh);
- return mesh;
-}
-
-function makeGlow(color){
- const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
-  color,transparent:true,opacity:.85,depthWrite:false,
-  blending:THREE.AdditiveBlending
- }));
- sprite.scale.set(3.5,3.5,1);
- return sprite;
-}
-
-function createCatalogObjects(){
- const pSun=new THREE.Vector3(0,0,0);
- const sunMat=new THREE.MeshBasicMaterial({color:0xffd27b});
- const sun=new THREE.Mesh(new THREE.SphereGeometry(3.4,40,28),sunMat);
- sun.position.copy(pSun);
- scene.add(sun);objects.set("sun",sun);
- const sunGlow=makeGlow(0xffba55);
- sunGlow.position.copy(pSun);sunGlow.scale.set(16,16,1);scene.add(sunGlow);
-
- for(const item of catalog){
-  if(item.id==="sun")continue;
-  const pos=starPosition(item);
-  if(item.type==="solar"){
-   const radius={
-    mercury:.42,venus:.8,earth:.85,moon:.23,mars:.6,
-    jupiter:2.8,saturn:2.4,uranus:1.55,neptune:1.5
-   }[item.id]||.7;
-   const texture={
-    earth:earthTexture,moon:moonTexture,mars:marsTexture,
-    jupiter:jupiterTexture,saturn:saturnTexture
-   }[item.id];
-   const mesh=addSphere(item.id,pos,radius,item.color,texture);
-   if(item.id==="saturn"){
-    const ring=new THREE.Mesh(
-     new THREE.RingGeometry(3.1,4.8,80),
-     new THREE.MeshStandardMaterial({color:0xcbb58c,side:THREE.DoubleSide,transparent:true,opacity:.7})
-    );
-    ring.position.copy(pos);ring.rotation.x=-.25;scene.add(ring);
-   }
-   if(item.id==="earth"){
-    const atmosphere=new THREE.Mesh(
-     new THREE.SphereGeometry(.92,32,24),
-     new THREE.MeshBasicMaterial({color:0x238cff,transparent:true,opacity:.13,side:THREE.BackSide})
-    );
-    atmosphere.position.copy(pos);scene.add(atmosphere);
-   }
-  }else if(item.type==="stars"){
-   const star=new THREE.Mesh(
-    new THREE.SphereGeometry(item.lum>1.5?1.5:.8,20,16),
-    new THREE.MeshBasicMaterial({color:item.color})
-   );
-   star.position.copy(pos);scene.add(star);objects.set(item.id,star);
-   const glow=makeGlow(item.color);glow.position.copy(pos);
-   glow.scale.set(5,5,1);scene.add(glow);
-  }else{
-   const mesh=new THREE.Mesh(
-    new THREE.SphereGeometry(.36,18,14),
-    new THREE.MeshStandardMaterial({color:item.color,roughness:.9})
-   );
-   mesh.position.copy(pos);scene.add(mesh);objects.set(item.id,mesh);
+  if (shipModel) {
+    shipRoot.remove(shipModel);
   }
 
-  // Markers are used for navigation and target selection.
-  const marker=new THREE.Sprite(new THREE.SpriteMaterial({
-   color:item.color||0x7de5ff,transparent:true,opacity:.55,depthWrite:false
-  }));
-  marker.position.copy(pos);
-  marker.scale.set(item.type==="stars"?2.4:1.3,item.type==="stars"?2.4:1.3,1);
-  scene.add(marker);
- }
- createOrbits();
+  shipModel = gltf.scene;
+
+  shipModel.traverse(object => {
+
+    if (!object.isMesh) return;
+
+    object.frustumCulled = false;
+
+    if (object.material) {
+      object.material.needsUpdate = true;
+    }
+  });
+
+  // Automatically scale and center the model.
+  const box = new THREE.Box3().setFromObject(shipModel);
+  const size = box.getSize(new THREE.Vector3());
+
+  const maxDimension = Math.max(size.x, size.y, size.z) || 1;
+
+  shipModel.scale.setScalar(7 / maxDimension);
+
+  const newBox = new THREE.Box3().setFromObject(shipModel);
+  const center = newBox.getCenter(new THREE.Vector3());
+
+  shipModel.position.sub(center);
+
+  shipRoot.remove(fallbackShip);
+  shipRoot.add(shipModel);
+
+  shipLoadSucceeded = true;
+
+  document.getElementById('loadShip').style.display = 'none';
+  document.getElementById('modalShade').style.display = 'none';
+
+  setMessage('Custom ship model loaded.');
 }
 
-function createOrbits(){
- const orbitData=[
-  ["mercury",12],["venus",18],["earth",26],["mars",35],
-  ["jupiter",57],["saturn",78],["uranus",99],["neptune",120]
- ];
- for(const [id,r] of orbitData){
-  const points=[];
-  for(let i=0;i<=180;i++){
-   const a=i/180*Math.PI*2;
-   points.push(new THREE.Vector3(Math.cos(a)*r,0,Math.sin(a)*r));
+function loadFromDrive(index = 0) {
+
+  if (index >= driveUrls.length) {
+
+    setMessage('Choose your GLB file if the ship is missing.');
+
+    document.getElementById('loadShip').style.display = 'block';
+    document.getElementById('modalShade').style.display = 'flex';
+
+    return;
   }
-  const line=new THREE.Line(
-   new THREE.BufferGeometry().setFromPoints(points),
-   new THREE.LineBasicMaterial({color:0x4b7291,transparent:true,opacity:.24})
+
+  setMessage('Trying to load your ship model...');
+
+  loader.load(
+    driveUrls[index],
+
+    gltf => {
+      prepareShip(gltf);
+    },
+
+    progress => {
+      if (progress.total > 0) {
+        const percent = Math.round(
+          progress.loaded / progress.total * 100
+        );
+
+        setMessage('Loading ship: ' + percent + '%');
+      }
+    },
+
+    error => {
+      console.warn('Ship URL failed:', error);
+
+      loadFromDrive(index + 1);
+    }
   );
-  scene.add(line);
- }
 }
 
-function loadTextures(){
- const textureLoader=new THREE.TextureLoader();
- const load=(file,cb)=>{
-  textureLoader.load(TEX+file,texture=>{
-   texture.colorSpace=THREE.SRGBColorSpace;
-   cb(texture);
-  },undefined,()=>console.warn("Texture unavailable:",file));
- };
- load("2k_earth_daymap.jpg",t=>replaceTexture("earth",t));
- load("2k_moon.jpg",t=>replaceTexture("moon",t));
- load("2k_mars.jpg",t=>replaceTexture("mars",t));
- load("2k_jupiter.jpg",t=>replaceTexture("jupiter",t));
- load("2k_saturn.jpg",t=>replaceTexture("saturn",t));
+loadFromDrive(0);
+
+
+/* ---------------------------------
+   PHONE FILE PICKER FALLBACK
+--------------------------------- */
+
+document.getElementById('loadShip').onclick = () => {
+  document.getElementById('fileInput').click();
+};
+
+document.getElementById('modalChoose').onclick = () => {
+  document.getElementById('fileInput').click();
+};
+
+document.getElementById('modalClose').onclick = () => {
+  document.getElementById('modalShade').style.display = 'none';
+};
+
+document.getElementById('fileInput').addEventListener('change', event => {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const objectUrl = URL.createObjectURL(file);
+
+  setMessage('Loading selected ship file...');
+
+  loader.load(
+    objectUrl,
+
+    gltf => {
+      prepareShip(gltf);
+      URL.revokeObjectURL(objectUrl);
+    },
+
+    undefined,
+
+    error => {
+      console.error(error);
+
+      setMessage('Could not load that file. Try the original GLB.');
+
+      URL.revokeObjectURL(objectUrl);
+    }
+  );
+});
+
+
+/* ---------------------------------
+   ROUND STARFIELD
+--------------------------------- */
+
+const starPositions = [];
+const starColors = [];
+
+for (let i = 0; i < 4500; i++) {
+
+  const radius = 1800 + Math.random() * 9000;
+
+  const angle = Math.random() * Math.PI * 2;
+  const vertical = Math.acos(2 * Math.random() - 1);
+
+  starPositions.push(
+    radius * Math.sin(vertical) * Math.cos(angle),
+    radius * Math.cos(vertical),
+    radius * Math.sin(vertical) * Math.sin(angle)
+  );
+
+  const brightness = 0.6 + Math.random() * 0.4;
+
+  starColors.push(
+    brightness,
+    brightness,
+    Math.min(1, brightness + Math.random() * 0.15)
+  );
 }
 
-function replaceTexture(id,texture){
- const mesh=objects.get(id);
- if(!mesh)return;
- mesh.material.map=texture;
- mesh.material.color.set(0xffffff);
- mesh.material.needsUpdate=true;
+// Radial gradient makes stars round instead of square.
+const starCanvas = document.createElement('canvas');
+
+starCanvas.width = 64;
+starCanvas.height = 64;
+
+const starContext = starCanvas.getContext('2d');
+
+const gradient = starContext.createRadialGradient(
+  32, 32, 0,
+  32, 32, 31
+);
+
+gradient.addColorStop(0, 'rgba(255,255,255,1)');
+gradient.addColorStop(0.25, 'rgba(255,255,255,0.95)');
+gradient.addColorStop(0.6, 'rgba(255,255,255,0.45)');
+gradient.addColorStop(1, 'rgba(255,255,255,0)');
+
+starContext.fillStyle = gradient;
+starContext.fillRect(0, 0, 64, 64);
+
+const starTexture = new THREE.CanvasTexture(starCanvas);
+
+const starGeometry = new THREE.BufferGeometry();
+
+starGeometry.setAttribute(
+  'position',
+  new THREE.Float32BufferAttribute(starPositions, 3)
+);
+
+starGeometry.setAttribute(
+  'color',
+  new THREE.Float32BufferAttribute(starColors, 3)
+);
+
+const stars = new THREE.Points(
+  starGeometry,
+
+  new THREE.PointsMaterial({
+    size: 3,
+    map: starTexture,
+    vertexColors: true,
+    transparent: true,
+    alphaTest: 0.03,
+    depthWrite: false,
+    sizeAttenuation: true
+  })
+);
+
+scene.add(stars);
+
+
+/* ---------------------------------
+   PROCEDURAL PLANET TEXTURES
+--------------------------------- */
+
+function createPlanetTexture(type, baseColor) {
+
+  const c = document.createElement('canvas');
+
+  c.width = 1024;
+  c.height = 512;
+
+  const ctx = c.getContext('2d');
+
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, c.width, c.height);
+
+  if (type === 'gas') {
+
+    const bands = [
+      'rgba(255,255,255,0.15)',
+      'rgba(70,40,25,0.18)',
+      'rgba(245,200,130,0.18)',
+      'rgba(25,15,10,0.12)'
+    ];
+
+    for (let i = 0; i < 100; i++) {
+
+      const y = Math.random() * c.height;
+      const h = 2 + Math.random() * 14;
+
+      ctx.fillStyle = bands[i % bands.length];
+
+      ctx.fillRect(0, y, c.width, h);
+    }
+
+    // Jupiter-like storm.
+    ctx.fillStyle = 'rgba(180,65,35,0.55)';
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+      720, 320, 70, 24, -0.1, 0, Math.PI * 2
+    );
+
+    ctx.fill();
+
+  } else if (type === 'earth') {
+
+    // Earth-like oceans and continents.
+    for (let i = 0; i < 200; i++) {
+
+      ctx.fillStyle =
+        Math.random() > 0.5 ? '#668e47' : '#b2a26a';
+
+      ctx.globalAlpha = 0.25 + Math.random() * 0.35;
+
+      ctx.beginPath();
+
+      ctx.ellipse(
+        Math.random() * 1024,
+        Math.random() * 512,
+        10 + Math.random() * 45,
+        5 + Math.random() * 25,
+        Math.random() * 3,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+
+    // Clouds.
+    for (let i = 0; i < 900; i++) {
+
+      ctx.fillStyle = 'rgba(255,255,255,0.10)';
+
+      ctx.fillRect(
+        Math.random() * 1024,
+        Math.random() * 512,
+        2 + Math.random() * 8,
+        1 + Math.random() * 3
+      );
+    }
+
+  } else if (type === 'ice') {
+
+    for (let i = 0; i < 350; i++) {
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 1 + Math.random() * 3;
+
+      ctx.beginPath();
+
+      const x = Math.random() * 1024;
+      const y = Math.random() * 512;
+
+      ctx.moveTo(x, y);
+
+      ctx.lineTo(
+        x + Math.random() * 50,
+        y + Math.random() * 35
+      );
+
+      ctx.stroke();
+    }
+
+  } else {
+
+    // Rocky surface.
+    for (let i = 0; i < 500; i++) {
+
+      ctx.fillStyle =
+        Math.random() > 0.5
+          ? 'rgba(0,0,0,0.15)'
+          : 'rgba(255,255,255,0.12)';
+
+      ctx.beginPath();
+
+      ctx.arc(
+        Math.random() * 1024,
+        Math.random() * 512,
+        1 + Math.random() * 9,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fill();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(c);
+
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.anisotropy = 4;
+
+  return texture;
 }
 
-function createShip(){
- shipRoot=new THREE.Group();
- shipRoot.position.set(0,2,48);
- scene.add(shipRoot);
 
- const group=new THREE.Group();
- const hullMat=new THREE.MeshStandardMaterial({color:0xc8d8e8,metalness:.75,roughness:.3});
- const darkMat=new THREE.MeshStandardMaterial({color:0x20384c,metalness:.55,roughness:.4});
- const glowMat=new THREE.MeshBasicMaterial({color:0x43dfff});
+/* ---------------------------------
+   SOLAR SYSTEM
+--------------------------------- */
 
- const hull=new THREE.Mesh(new THREE.ConeGeometry(.8,5,10),hullMat);
- hull.rotation.x=-Math.PI/2;hull.position.z=-.7;group.add(hull);
- const core=new THREE.Mesh(new THREE.CylinderGeometry(.55,.85,2.6,10),darkMat);
- core.rotation.x=Math.PI/2;core.position.z=1.4;group.add(core);
+const planetData = [
 
- const wingGeom=new THREE.BufferGeometry();
- const vertices=new Float32Array([
-  0,0,0, 3.2,0,.9, .8,.15,1.4,
-  0,0,0, .8,.15,1.4, .4,0,-.6
- ]);
- wingGeom.setAttribute("position",new THREE.BufferAttribute(vertices,3));
- wingGeom.computeVertexNormals();
- const wing=new THREE.Mesh(wingGeom,hullMat);
- group.add(wing);
- const wing2=wing.clone();wing2.scale.x=-1;group.add(wing2);
+  {
+    name: 'Sun',
+    pos: [-850, 150, -4200],
+    radius: 180,
+    color: '#ffbd55',
+    type: 'rocky',
+    sun: true
+  },
 
- for(const x of [-.45,.45]){
-  const engine=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),glowMat);
-  engine.position.set(x,-.15,2.4);group.add(engine);
- }
- shipRoot.add(group);
- shipVisual=group;
-}
+  {
+    name: 'Mercury',
+    pos: [-400, 20, -2100],
+    radius: 20,
+    color: '#77716c',
+    type: 'rocky'
+  },
 
-function loadShipModel(){
- if(SHIP_MODEL_URL.includes("YOUR_GOOGLE_DRIVE_FILE_ID")){
-  loadText.textContent="Using fallback ship. Add your Google Drive file ID in the code.";
-  return;
- }
+  {
+    name: 'Venus',
+    pos: [-230, 35, -2500],
+    radius: 36,
+    color: '#d6ad70',
+    type: 'gas'
+  },
 
- const gltfLoader=new GLTFLoader();
- gltfLoader.setCrossOrigin("anonymous");
- gltfLoader.load(SHIP_MODEL_URL,gltf=>{
-  try{
-   const model=gltf.scene;
-   model.updateMatrixWorld(true);
-   const box=new THREE.Box3().setFromObject(model);
-   const size=new THREE.Vector3();const center=new THREE.Vector3();
-   box.getSize(size);box.getCenter(center);
-   const largest=Math.max(size.x,size.y,size.z);
-   if(!Number.isFinite(largest)||largest<=0)throw new Error("Invalid model bounds");
-   model.position.sub(center);
-   model.scale.multiplyScalar(6/largest);
-   const wrapper=new THREE.Group();wrapper.add(model);
-   // Change rotation here if the imported ship faces the wrong direction.
-   wrapper.rotation.y=0;
-   shipRoot.remove(shipVisual);
-   shipRoot.add(wrapper);shipVisual=wrapper;shipLoaded=true;
-   setStatus("IXS ENTERPRISE LOADED · FLIGHT READY");
-  }catch(e){console.error(e);setStatus("FALLBACK SHIP ACTIVE");}
- },xhr=>{
-  if(xhr.total)loadText.textContent="Downloading ship model: "+Math.round(xhr.loaded/xhr.total*100)+"%";
-  else loadText.textContent="Downloading ship model...";
- },err=>{
-  console.warn("Ship model could not load:",err);
-  setStatus("MODEL UNAVAILABLE · FALLBACK SHIP ACTIVE");
- });
-}
+  {
+    name: 'Earth',
+    pos: [0, 0, -3000],
+    radius: 42,
+    color: '#163f8b',
+    type: 'earth'
+  },
 
-function getItem(id){return catalog.find(x=>x.id===id)}
-function selectedPosition(id){return starPosition(getItem(id)||catalog[0])}
+  {
+    name: 'Moon',
+    pos: [95, 12, -2890],
+    radius: 11,
+    color: '#aaa9a2',
+    type: 'rocky'
+  },
 
-function populateDestinations(){
- const list=$("destList");
- const query=$("search").value.trim().toLowerCase();
- list.innerHTML="";
- const results=catalog.filter(item=>{
-  const matchesCategory=currentCategory==="all"||item.type===currentCategory;
-  const matchesText=(item.name+" "+item.kind+" "+item.category+" "+(item.description||"")).toLowerCase().includes(query);
-  return matchesCategory&&matchesText;
- });
+  {
+    name: 'Mars',
+    pos: [300, -15, -3600],
+    radius: 31,
+    color: '#a84d32',
+    type: 'rocky'
+  },
 
- for(const item of results){
-  const button=document.createElement("button");
-  button.className="dest"+(item.id===selectedId?" active":"");
-  const distance=item.distance>0?ly(item.distance):item.type==="solar"?"Local system":"Local region";
-  button.innerHTML="<strong>"+escapeHTML(item.name)+"</strong><small>"+escapeHTML(item.kind)+" · "+escapeHTML(distance)+"</small>";
-  button.addEventListener("click",()=>{
-   selectedId=item.id;
-   $("selectedInfo").textContent=item.description+"  Type: "+item.kind+". Distance: "+distance+".";
-   populateDestinations();
-   updateTargetLabel();
+  {
+    name: 'Jupiter',
+    pos: [750, 55, -4700],
+    radius: 130,
+    color: '#bd9a72',
+    type: 'gas'
+  },
+
+  {
+    name: 'Saturn',
+    pos: [1200, 80, -5600],
+    radius: 105,
+    color: '#d7c18e',
+    type: 'gas',
+    ring: true
+  },
+
+  {
+    name: 'Uranus',
+    pos: [1550, -50, -6700],
+    radius: 65,
+    color: '#75cdd3',
+    type: 'ice'
+  },
+
+  {
+    name: 'Neptune',
+    pos: [1880, 35, -7600],
+    radius: 62,
+    color: '#2857c9',
+    type: 'ice'
+  },
+
+  {
+    name: 'Kepler-22b',
+    pos: [-2400, 450, -9200],
+    radius: 75,
+    color: '#327b9e',
+    type: 'ice'
+  },
+
+  {
+    name: 'Proxima b',
+    pos: [2800, -400, -10000],
+    radius: 48,
+    color: '#a65c40',
+    type: 'rocky'
+  },
+
+  {
+    name: 'TRAPPIST-1e',
+    pos: [3300, 500, -11200],
+    radius: 43,
+    color: '#9b8a72',
+    type: 'rocky'
+  }
+];
+
+const planets = {};
+
+planetData.forEach(data => {
+
+  const geometry = new THREE.SphereGeometry(
+    data.radius,
+    64,
+    48
+  );
+
+  const texture = createPlanetTexture(
+    data.type,
+    data.color
+  );
+
+  // Opaque material: background stars cannot show through.
+  const material = new THREE.MeshStandardMaterial({
+    map: data.sun ? null : texture,
+    color: data.sun ? data.color : 0xffffff,
+    roughness: 0.9,
+    metalness: 0,
+    transparent: false,
+    opacity: 1,
+    depthWrite: true,
+    depthTest: true
   });
-  list.appendChild(button);
- }
- if(!results.length)list.innerHTML="<p>No destinations match this search.</p>";
- if(!getItem(selectedId))selectedId="sun";
- const selected=getItem(selectedId);
- $("selectedInfo").textContent=selected.description+" Type: "+selected.kind+". Distance: "+(selected.distance>0?ly(selected.distance):"Local system")+".";
+
+  if (data.sun) {
+    material.emissive = new THREE.Color(0xff8a22);
+    material.emissiveIntensity = 1.2;
+  }
+
+  const planet = new THREE.Mesh(geometry, material);
+
+  planet.position.set(...data.pos);
+  planet.name = data.name;
+
+  scene.add(planet);
+
+  if (data.sun) {
+
+    const glow = new THREE.Mesh(
+      new THREE.SphereGeometry(data.radius * 1.12, 32, 24),
+
+      new THREE.MeshBasicMaterial({
+        color: 0xffa83a,
+        transparent: true,
+        opacity: 0.12,
+        side: THREE.BackSide,
+        depthWrite: false
+      })
+    );
+
+    planet.add(glow);
+  }
+
+  if (data.ring) {
+
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(
+        data.radius * 1.35,
+        data.radius * 2.05,
+        96
+      ),
+
+      new THREE.MeshStandardMaterial({
+        color: 0xc9b98c,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8,
+        roughness: 1,
+        depthWrite: false
+      })
+    );
+
+    ring.rotation.x = Math.PI / 2.35;
+
+    planet.add(ring);
+  }
+
+  planets[data.name] = planet;
+});
+
+
+/* ---------------------------------
+   DISTANT STAR SYSTEMS
+--------------------------------- */
+
+for (let i = 0; i < 35; i++) {
+
+  const distantStar = new THREE.Mesh(
+    new THREE.SphereGeometry(
+      18 + Math.random() * 35,
+      24,
+      18
+    ),
+
+    new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(
+        0.52 + Math.random() * 0.16,
+        0.35,
+        0.22 + Math.random() * 0.25
+      ),
+
+      roughness: 1
+    })
+  );
+
+  distantStar.position.set(
+    (Math.random() - 0.5) * 9000,
+    (Math.random() - 0.5) * 3000,
+    -12000 - Math.random() * 15000
+  );
+
+  scene.add(distantStar);
 }
 
-function escapeHTML(str){
- return String(str).replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+
+/* ---------------------------------
+   FLIGHT CONTROLS
+--------------------------------- */
+
+let speed = 0;
+let yaw = 0;
+let pitch = 0;
+
+let thrustHeld = false;
+let reverseHeld = false;
+let freeLook = true;
+
+let targetName = 'Earth';
+
+const movement = {
+  left: false,
+  right: false,
+  up: false,
+  down: false
+};
+
+const keys = {};
+
+const clock = new THREE.Clock();
+
+function holdButton(id, direction) {
+
+  const button = document.getElementById(id);
+
+  function start(event) {
+    event.preventDefault();
+    movement[direction] = true;
+  }
+
+  function stop(event) {
+    event.preventDefault();
+    movement[direction] = false;
+  }
+
+  button.addEventListener('pointerdown', start);
+  button.addEventListener('pointerup', stop);
+  button.addEventListener('pointerleave', stop);
+  button.addEventListener('pointercancel', stop);
 }
 
-function updateTargetLabel(){
- const item=getItem(targetId)||getItem("sun");
- $("targetLabel").innerHTML=escapeHTML(item.name.toUpperCase())+
-  "<small>CAMERA: "+(cameraMode===0?"CHASE":"WIDE FOLLOW")+" · DRAG TO ORBIT</small>";
+holdButton('leftBtn', 'left');
+holdButton('rightBtn', 'right');
+holdButton('upBtn', 'up');
+holdButton('downBtn', 'down');
+
+function setupHoldButton(id, variable) {
+
+  const button = document.getElementById(id);
+
+  button.addEventListener('pointerdown', event => {
+    event.preventDefault();
+
+    if (variable === 'thrust') {
+      thrustHeld = true;
+    }
+
+    if (variable === 'reverse') {
+      reverseHeld = true;
+    }
+  });
+
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(type => {
+
+    button.addEventListener(type, () => {
+
+      if (variable === 'thrust') {
+        thrustHeld = false;
+      }
+
+      if (variable === 'reverse') {
+        reverseHeld = false;
+      }
+    });
+  });
 }
 
-function setTarget(){
- targetId=selectedId;
- const item=getItem(targetId);
- setStatus("NAVIGATION TARGET SET · "+item.name.toUpperCase());
- updateTargetLabel();
- say("TARGET SET: "+item.name);
-}
+setupHoldButton('thrustBtn', 'thrust');
+setupHoldButton('reverseBtn', 'reverse');
 
-function beginWarp(){
- if(warp)return;
- const destination=selectedPosition(targetId);
- const distance=shipRoot.position.distanceTo(destination);
- if(distance<8){say("Already near this destination.");return}
- warp={
-  start:shipRoot.position.clone(),
-  end:destination.clone(),
-  elapsed:0,
-  duration:THREE.MathUtils.clamp(distance/90,3,16)
- };
- $("warpFX").style.opacity=".7";
- setStatus("WARP DRIVE ENGAGED · "+getItem(targetId).name.toUpperCase());
-}
+addEventListener('keydown', event => {
+  keys[event.key.toLowerCase()] = true;
+});
 
-function cancelWarp(){
- if(!warp)return;
- warp=null;
- $("warpFX").style.opacity="0";
- velocity.set(0,0,0);
- setStatus("WARP CANCELLED · MANUAL FLIGHT");
-}
+addEventListener('keyup', event => {
+  keys[event.key.toLowerCase()] = false;
+});
 
-function updateWarp(dt){
- if(!warp)return false;
- warp.elapsed+=dt;
- const t=THREE.MathUtils.clamp(warp.elapsed/warp.duration,0,1);
- const eased=t*t*(3-2*t);
- shipRoot.position.lerpVectors(warp.start,warp.end,eased);
- velocity.copy(warp.end).sub(warp.start).multiplyScalar(1/warp.duration);
- $("warpFX").style.opacity=String(.3+.3*Math.sin(performance.now()*.012));
- if(t>=1){
-  warp=null;velocity.set(0,0,0);
-  $("warpFX").style.opacity="0";
-  setStatus("WARP COMPLETE · MANUAL FLIGHT");
-  say("ARRIVED AT "+getItem(targetId).name.toUpperCase());
- }
- return true;
-}
 
-function control(name){
- return Boolean(held[name]||keys[name]);
-}
+/* ---------------------------------
+   FREE-LOOK CAMERA
+--------------------------------- */
 
-function updatePhysics(dt){
- if(warp&&updateWarp(dt))return;
+let pointerDown = false;
+let lastX = 0;
+let lastY = 0;
 
- const pitch=(control("pitchUp")?1:0)-(control("pitchDown")?1:0);
- const yaw=(control("yawLeft")?1:0)-(control("yawRight")?1:0);
- const roll=(control("rollLeft")?1:0)-(control("rollRight")?1:0);
+canvas.addEventListener('pointerdown', event => {
 
- if(pitch)shipRoot.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),pitch*sim.rotation*dt));
- if(yaw)shipRoot.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),yaw*sim.rotation*dt));
- if(roll)shipRoot.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),roll*sim.rotation*dt));
- shipRoot.quaternion.normalize();
+  pointerDown = true;
 
- acceleration.set(0,0,0);
- const forwardPressed=control("forward")||keys.KeyW;
- const reversePressed=control("reverse")||keys.KeyS;
- let throttle=sim.throttle/100;
- if(forwardPressed)throttle=Math.max(throttle,.85);
- const boost=keys.ShiftLeft||keys.ShiftRight?2.5:1;
- const direction=forward.clone().applyQuaternion(shipRoot.quaternion);
+  lastX = event.clientX;
+  lastY = event.clientY;
 
- if(throttle>0)acceleration.addScaledVector(direction,sim.thrust*throttle*boost);
- if(reversePressed)acceleration.addScaledVector(direction,-sim.reverse);
+  if (canvas.setPointerCapture) {
+    canvas.setPointerCapture(event.pointerId);
+  }
+});
 
- // Approximate gravity from local solar-system bodies.
- // Star-system and galaxy scales are compressed, so this is
- // a playable model rather than a physically exact N-body solver.
- if(gravityEnabled){
-  const localBodies=[
-   {pos:new THREE.Vector3(0,0,0),mu:0.04,r:3.4},
-   {pos:new THREE.Vector3(26,0,0),mu:2.2,r:.85},
-   {pos:new THREE.Vector3(35,0,0),mu:.15,r:.6},
-   {pos:new THREE.Vector3(57,0,0),mu:1.6,r:2.8},
-   {pos:new THREE.Vector3(78,0,0),mu:1.1,r:2.4}
+canvas.addEventListener('pointermove', event => {
+
+  if (!pointerDown || !freeLook) return;
+
+  const dx = event.clientX - lastX;
+  const dy = event.clientY - lastY;
+
+  lastX = event.clientX;
+  lastY = event.clientY;
+
+  yaw -= dx * 0.004;
+
+  pitch -= dy * 0.0035;
+
+  pitch = THREE.MathUtils.clamp(
+    pitch,
+    -1.1,
+    1.1
+  );
+});
+
+canvas.addEventListener('pointerup', () => {
+  pointerDown = false;
+});
+
+canvas.addEventListener('pointercancel', () => {
+  pointerDown = false;
+});
+
+
+/* ---------------------------------
+   DESTINATION SELECTOR
+--------------------------------- */
+
+document.getElementById('destBtn').onclick = () => {
+
+  const panel = document.getElementById('destPanel');
+
+  panel.style.display =
+    panel.style.display === 'block' ? 'none' : 'block';
+};
+
+document.getElementById('closeDest').onclick = () => {
+  document.getElementById('destPanel').style.display = 'none';
+};
+
+document.querySelectorAll('[data-target]').forEach(button => {
+
+  button.onclick = () => {
+
+    targetName = button.dataset.target;
+
+    if (planets[targetName]) {
+
+      const target = planets[targetName];
+
+      // Set a direction toward the selected destination.
+      const direction = target.position.clone()
+        .sub(shipRoot.position)
+        .normalize();
+
+      yaw = Math.atan2(-direction.x, -direction.z);
+
+      pitch = Math.asin(
+        THREE.MathUtils.clamp(direction.y, -1, 1)
+      );
+
+    } else if (targetName === 'Orbit Earth') {
+
+      targetName = 'Orbit Earth';
+
+      yaw = 0;
+      pitch = 0;
+
+    } else if (targetName === 'Solar System') {
+
+      yaw = 0;
+      pitch = 0;
+
+    } else {
+
+      // Exoplanet labels are illustrative destinations,
+      // not scientifically accurate interstellar routes.
+      yaw = (Math.random() - 0.5) * 1.5;
+      pitch = (Math.random() - 0.5) * 0.4;
+    }
+
+    setMessage('Navigation target: ' + targetName);
+
+    document.getElementById('destPanel').style.display = 'none';
+  };
+});
+
+
+/* ---------------------------------
+   SCHEMATIC MAP
+--------------------------------- */
+
+function drawMap() {
+
+  const mapCanvas = document.getElementById('mapCanvas');
+
+  const ctx = mapCanvas.getContext('2d');
+
+  ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+
+  ctx.fillStyle = '#030b18';
+
+  ctx.fillRect(
+    0,
+    0,
+    mapCanvas.width,
+    mapCanvas.height
+  );
+
+  ctx.strokeStyle = '#163b55';
+
+  for (let x = 0; x < 600; x += 50) {
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 250);
+    ctx.stroke();
+  }
+
+  for (let y = 0; y < 250; y += 40) {
+
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(600, y);
+    ctx.stroke();
+  }
+
+  const names = [
+    'Sun',
+    'Mercury',
+    'Venus',
+    'Earth',
+    'Mars',
+    'Jupiter',
+    'Saturn',
+    'Uranus',
+    'Neptune'
   ];
-  for(const body of localBodies){
-   temp.copy(body.pos).sub(shipRoot.position);
-   const d2=Math.max(temp.lengthSq(),body.r*body.r);
-   if(d2<1800&&d2>0.001){
-    temp.normalize();
-    acceleration.addScaledVector(temp,body.mu/d2);
-   }
-  }
- }
 
- velocity.addScaledVector(acceleration,dt);
+  names.forEach((name, index) => {
 
- if(sim.brake||keys.Space){
-  const speed=velocity.length();
-  if(speed>.001){
-   const amount=Math.min(speed,20*dt);
-   velocity.addScaledVector(velocity.clone().normalize(),-amount);
-  }
- }
+    const x = 30 + index * 65;
+    const y = 120;
 
- shipRoot.position.addScaledVector(velocity,dt);
- sim.time+=dt;
-}
+    ctx.fillStyle =
+      name === targetName ? '#ffffff' : '#6be6ff';
 
-function updateCamera(dt){
- const sensitivity=.005;
- const distance=cameraMode===0?cameraDistance:cameraDistance*1.65;
- const cp=Math.cos(cameraPitch),sp=Math.sin(cameraPitch);
- const offset=new THREE.Vector3(
-  Math.sin(cameraYaw)*cp*distance,
-  sp*distance+4,
-  Math.cos(cameraYaw)*cp*distance
- );
- offset.applyQuaternion(shipRoot.quaternion);
- cameraWanted.copy(shipRoot.position).add(offset);
- camera.position.lerp(cameraWanted,1-Math.exp(-dt*5));
- cameraLook.copy(shipRoot.position);
- cameraLook.add(forward.clone().applyQuaternion(shipRoot.quaternion).multiplyScalar(4));
- camera.lookAt(cameraLook);
-}
+    ctx.beginPath();
 
-function updateTrajectory(){
- if(!trajectoryVisible||!shipRoot)return;
- const points=[];
- const pos=shipRoot.position.clone();
- const vel=velocity.clone();
- const q=shipRoot.quaternion.clone();
- const f=forward.clone().applyQuaternion(q);
- const a=new THREE.Vector3();
- const dt=.65;
- for(let i=0;i<100;i++){
-  points.push(pos.clone());
-  a.set(0,0,0);
-  a.addScaledVector(f,sim.thrust*(sim.throttle/100));
-  if(gravityEnabled){
-   const sun=new THREE.Vector3(0,0,0);
-   const delta=sun.sub(pos);
-   const d2=Math.max(delta.lengthSq(),100);
-   if(d2<100000){
-    delta.normalize();
-    a.addScaledVector(delta,.04/d2);
-   }
-  }
-  vel.addScaledVector(a,dt);
-  pos.addScaledVector(vel,dt);
- }
- const lineGeometry=new THREE.BufferGeometry().setFromPoints(points);
- if(window.trajectoryLine){
-  scene.remove(window.trajectoryLine);
-  window.trajectoryLine.geometry.dispose();
- }
- window.trajectoryLine=new THREE.Line(lineGeometry,new THREE.LineDashedMaterial({
-  color:0x66dcff,dashSize:1.8,gapSize:1.1,transparent:true,opacity:.7
- }));
- window.trajectoryLine.computeLineDistances();
- scene.add(window.trajectoryLine);
-}
+    ctx.arc(
+      x,
+      y,
+      name === 'Sun' ? 8 : 4,
+      0,
+      Math.PI * 2
+    );
 
-function drawMap(){
- const canvas=$("mapCanvas");
- const ctx=canvas.getContext("2d");
- const w=canvas.width,h=canvas.height;
- ctx.clearRect(0,0,w,h);
- ctx.fillStyle="#020914";ctx.fillRect(0,0,w,h);
+    ctx.fill();
 
- ctx.strokeStyle="#142b43";ctx.lineWidth=1;
- for(let x=0;x<w;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
- for(let y=0;y<h;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+    ctx.fillStyle = '#b9dbe9';
+    ctx.font = '12px Arial';
 
- const centerX=w/2,centerY=h/2;
- ctx.strokeStyle="#31567b";ctx.beginPath();ctx.ellipse(centerX,centerY,135,55,-.12,0,Math.PI*2);ctx.stroke();
- ctx.fillStyle="#ffce70";ctx.beginPath();ctx.arc(centerX,centerY,4,0,Math.PI*2);ctx.fill();
-
- const visible=catalog.filter(i=>i.type==="stars");
- for(const item of visible){
-  const m=item.map||[0,0];
-  const x=centerX+m[0]*2.1;
-  const y=centerY+m[1]*1.45;
-  ctx.fillStyle=item.color?"#9edfff":"#ffffff";
-  ctx.beginPath();ctx.arc(x,y,item.id===targetId?4:2,0,Math.PI*2);ctx.fill();
-  if(item.id===targetId){
-   ctx.strokeStyle="#8deaff";ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.stroke();
-  }
- }
- ctx.fillStyle="#83e5ff";ctx.font="10px Arial";
- ctx.fillText("SUN",centerX+7,centerY-7);
-}
-
-function updateHUD(){
- const speed=velocity.length();
- $("speed").textContent=formatDistance(speed*1000)+"/s";
- $("throttleRead").textContent=sim.throttle+"%";
- $("throttleValue").textContent=sim.throttle+"%";
- $("mode").textContent=warp?"WARP":"MANUAL";
- $("gravityRead").textContent=gravityEnabled?"ON":"OFF";
-
- let nearest=null,nearestDist=Infinity;
- for(const item of catalog){
-  const p=starPosition(item);
-  const d=shipRoot.position.distanceTo(p);
-  if(d<nearestDist){nearestDist=d;nearest=item}
- }
- $("nearest").textContent=nearest?nearest.name:"—";
- $("altitude").textContent=nearest?nearestDist.toFixed(1)+" u":"—";
-}
-
-function resetShip(){
- cancelWarp();
- shipRoot.position.set(0,2,48);
- shipRoot.quaternion.identity();
- velocity.set(0,0,0);
- sim.throttle=0;
- $("throttle").value=0;
- $("throttleValue").textContent="0%";
- setStatus("SHIP RESET · FLIGHT READY");
-}
-
-function bindUI(){
- $("startButton").addEventListener("click",()=>{$("startPanel").style.display="none";say("FLIGHT DECK ACTIVE")});
- $("destButton").addEventListener("click",()=>{
-  const panel=$("destinationPanel");
-  panel.style.display=panel.style.display==="block"?"none":"block";
- });
- $("mapButton").addEventListener("click",()=>{
-  const panel=$("mapPanel");
-  panel.style.display=panel.style.display==="block"?"none":"block";
- });
- $("trajectoryButton").addEventListener("click",()=>{
-  trajectoryVisible=!trajectoryVisible;
-  $("trajectoryButton").textContent=trajectoryVisible?"TRAJECTORY ON":"TRAJECTORY OFF";
-  if(!trajectoryVisible&&window.trajectoryLine){scene.remove(window.trajectoryLine);window.trajectoryLine=null}
-  else updateTrajectory();
- });
- $("search").addEventListener("input",populateDestinations);
- document.querySelectorAll("[data-category]").forEach(button=>{
-  button.addEventListener("click",()=>{
-   currentCategory=button.dataset.category;
-   document.querySelectorAll("[data-category]").forEach(b=>b.classList.toggle("active",b===button));
-   populateDestinations();
+    ctx.fillText(name, x - 18, y + 20);
   });
- });
- $("setTarget").addEventListener("click",setTarget);
- $("warpButton").addEventListener("click",()=>{
-  setTarget();
-  beginWarp();
-  $("destinationPanel").style.display="none";
- });
- $("mapTarget").addEventListener("click",drawMap);
- $("cameraButton").addEventListener("click",()=>{
-  cameraMode=(cameraMode+1)%2;
-  updateTargetLabel();
-  say(cameraMode===0?"CHASE CAMERA":"WIDE FOLLOW CAMERA");
- });
- $("resetButton").addEventListener("click",resetShip);
- $("throttle").addEventListener("input",e=>{sim.throttle=Number(e.target.value)});
- $("brake").addEventListener("pointerdown",e=>{e.preventDefault();sim.brake=true;$("brake").classList.add("held")});
- const brakeEnd=()=>{sim.brake=false;$("brake").classList.remove("held")};
- ["pointerup","pointercancel","pointerleave"].forEach(ev=>$("brake").addEventListener(ev,brakeEnd));
 
- document.querySelectorAll("[data-control]").forEach(button=>{
-  const name=button.dataset.control;
-  const down=e=>{e.preventDefault();held[name]=true;button.classList.add("held");try{button.setPointerCapture(e.pointerId)}catch{}};
-  const up=e=>{e.preventDefault();held[name]=false;button.classList.remove("held")};
-  button.addEventListener("pointerdown",down);
-  button.addEventListener("pointerup",up);
-  button.addEventListener("pointercancel",up);
-  button.addEventListener("lostpointercapture",up);
- });
+  ctx.strokeStyle = '#4bdaff';
+  ctx.setLineDash([6, 5]);
 
- window.addEventListener("keydown",e=>{
-  keys[e.code]=true;
-  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code))e.preventDefault();
-  if(e.code==="ArrowUp")held.pitchUp=true;
-  if(e.code==="ArrowDown")held.pitchDown=true;
-  if(e.code==="ArrowLeft")held.yawLeft=true;
-  if(e.code==="ArrowRight")held.yawRight=true;
-  if(e.code==="KeyQ")held.rollLeft=true;
-  if(e.code==="KeyE")held.rollRight=true;
-  if(e.code==="KeyW")held.forward=true;
-  if(e.code==="KeyS")held.reverse=true;
-  if(e.code==="Space")sim.brake=true;
- },{passive:false});
+  ctx.beginPath();
+  ctx.moveTo(15, 230);
+  ctx.lineTo(580, 20);
+  ctx.stroke();
 
- window.addEventListener("keyup",e=>{
-  keys[e.code]=false;
-  if(e.code==="ArrowUp")held.pitchUp=false;
-  if(e.code==="ArrowDown")held.pitchDown=false;
-  if(e.code==="ArrowLeft")held.yawLeft=false;
-  if(e.code==="ArrowRight")held.yawRight=false;
-  if(e.code==="KeyQ")held.rollLeft=false;
-  if(e.code==="KeyE")held.rollRight=false;
-  if(e.code==="KeyW")held.forward=false;
-  if(e.code==="KeyS")held.reverse=false;
-  if(e.code==="Space")sim.brake=false;
- });
-
- // Drag on the 3D canvas to rotate the external chase camera.
- const canvas=renderer.domElement;
- canvas.addEventListener("pointerdown",e=>{
-  if(e.target.closest&&e.target.closest("button"))return;
-  drag={x:e.clientX,y:e.clientY,id:e.pointerId};
-  try{canvas.setPointerCapture(e.pointerId)}catch{}
- });
- canvas.addEventListener("pointermove",e=>{
-  if(!drag||drag.id!==e.pointerId)return;
-  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-  cameraYaw-=dx*.006;
-  cameraPitch=THREE.MathUtils.clamp(cameraPitch+dy*.005,-1.1,1.1);
-  drag.x=e.clientX;drag.y=e.clientY;
- });
- const stopDrag=()=>{drag=null};
- canvas.addEventListener("pointerup",stopDrag);
- canvas.addEventListener("pointercancel",stopDrag);
- canvas.addEventListener("wheel",e=>{
-  cameraDistance=THREE.MathUtils.clamp(cameraDistance+e.deltaY*.025,8,90);
- },{passive:true});
-
- window.addEventListener("blur",()=>{
-  Object.keys(held).forEach(k=>held[k]=false);
-  Object.keys(keys).forEach(k=>keys[k]=false);
-  sim.brake=false;drag=null;
- });
- window.addEventListener("resize",resize);
+  ctx.setLineDash([]);
 }
 
-function resize(){
- if(!camera||!renderer)return;
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
- renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
+drawMap();
+
+document.getElementById('mapBtn').onclick = () => {
+
+  const panel = document.getElementById('mapPanel');
+
+  panel.style.display =
+    panel.style.display === 'block' ? 'none' : 'block';
+
+  drawMap();
+};
+
+document.getElementById('closeMap').onclick = () => {
+  document.getElementById('mapPanel').style.display = 'none';
+};
+
+
+/* ---------------------------------
+   CAMERA AND RESET BUTTONS
+--------------------------------- */
+
+document.getElementById('cameraBtn').onclick = () => {
+
+  freeLook = !freeLook;
+
+  document.getElementById('cameraBtn').textContent =
+    freeLook ? 'FREE LOOK' : 'CHASE CAM';
+
+  setMessage(
+    freeLook
+      ? 'Free-look camera active.'
+      : 'Chase camera active.'
+  );
+};
+
+document.getElementById('resetBtn').onclick = () => {
+
+  shipRoot.position.set(0, 0, 0);
+
+  speed = 0;
+  yaw = 0;
+  pitch = 0;
+
+  targetName = 'Earth';
+
+  setMessage('Flight controls reset.');
+};
+
+
+/* ---------------------------------
+   STATUS DISPLAY
+--------------------------------- */
+
+function updateStatus() {
+
+  document.getElementById('status').innerHTML =
+    'TARGET: ' + targetName.toUpperCase() +
+    '<br>SPEED: ' + Math.round(speed * 100) + ' km/s' +
+    '<br>SHIP: ' +
+    (shipLoadSucceeded ? 'CUSTOM GLB' : 'FALLBACK / LOADING');
 }
 
-function animate(){
- requestAnimationFrame(animate);
- if(!renderer||!clock)return;
- const dt=Math.min(clock.getDelta(),.035);
- updatePhysics(dt);
- updateCamera(dt);
 
- if(sim.time-sim.lastTrajectory>.75){
-  sim.lastTrajectory=sim.time;
-  if(trajectoryVisible)updateTrajectory();
- }
- updateHUD();
- renderer.render(scene,camera);
+/* ---------------------------------
+   MAIN GAME LOOP
+--------------------------------- */
+
+function animate() {
+
+  requestAnimationFrame(animate);
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  // Steering buttons and keyboard.
+  if (
+    movement.left ||
+    keys['arrowleft'] ||
+    keys['a']
+  ) {
+    yaw += dt * 0.9;
+  }
+
+  if (
+    movement.right ||
+    keys['arrowright'] ||
+    keys['d']
+  ) {
+    yaw -= dt * 0.9;
+  }
+
+  if (
+    movement.up ||
+    keys['arrowup'] ||
+    keys['w']
+  ) {
+    pitch += dt * 0.7;
+  }
+
+  if (
+    movement.down ||
+    keys['arrowdown'] ||
+    keys['s']
+  ) {
+    pitch -= dt * 0.7;
+  }
+
+  pitch = THREE.MathUtils.clamp(
+    pitch,
+    -1.15,
+    1.15
+  );
+
+  // Thrust and reverse.
+  if (thrustHeld || keys[' ']) {
+
+    speed = Math.min(
+      speed + dt * 5,
+      120
+    );
+
+  } else if (reverseHeld || keys['shift']) {
+
+    speed = Math.max(
+      speed - dt * 7,
+      0
+    );
+
+  } else {
+
+    speed = Math.max(
+      speed - dt * 0.06,
+      0
+    );
+  }
+
+  const forward = new THREE.Vector3(0, 0, -1);
+
+  forward.applyEuler(
+    new THREE.Euler(pitch, yaw, 0, 'YXZ')
+  );
+
+  shipRoot.position.add(
+    forward.clone().multiplyScalar(speed * dt * 4.5)
+  );
+
+  shipRoot.rotation.set(
+    pitch,
+    yaw,
+    0,
+    'YXZ'
+  );
+
+  // Planet rotation.
+  Object.values(planets).forEach((planet, index) => {
+
+    planet.rotation.y += dt * (
+      0.025 + (index % 4) * 0.008
+    );
+  });
+
+  stars.rotation.y += dt * 0.0004;
+
+  // Camera follows the ship.
+  const cameraOffset = new THREE.Vector3(
+    0,
+    4,
+    17
+  );
+
+  cameraOffset.applyEuler(
+    new THREE.Euler(
+      pitch * 0.55,
+      yaw,
+      0,
+      'YXZ'
+    )
+  );
+
+  const desiredCameraPosition =
+    shipRoot.position.clone().add(cameraOffset);
+
+  camera.position.lerp(
+    desiredCameraPosition,
+    0.08
+  );
+
+  const lookDirection = forward.clone().multiplyScalar(30);
+
+  camera.lookAt(
+    shipRoot.position.clone().add(lookDirection)
+  );
+
+  sunLight.position.copy(planets.Sun.position);
+
+  updateStatus();
+
+  renderer.render(scene, camera);
 }
 
-try{
- init();
-}catch(error){
- console.error(error);
- loaderScreen.style.display="flex";
- loadText.textContent="Could not start 3D graphics. Check browser WebGL support and internet connection.";
+animate();
+
+
+/* ---------------------------------
+   RESIZE FOR MOBILE AND LANDSCAPE
+--------------------------------- */
+
+function resize() {
+
+  camera.aspect = innerWidth / innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setPixelRatio(
+    Math.min(devicePixelRatio || 1, 1.5)
+  );
+
+  renderer.setSize(
+    innerWidth,
+    innerHeight
+  );
 }
+
+addEventListener('resize', resize);
+
+addEventListener('orientationchange', () => {
+  setTimeout(resize, 200);
+});
+
 </script>
+
 </body>
 </html>
