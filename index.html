@@ -1,2669 +1,1103 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
-               maximum-scale=1.0, user-scalable=no">
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#030711">
 <title>THE INTESTELLER TRAVLER</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+:root{
+  --cyan:#77e5ff;
+  --blue:#168dc4;
+  --glass:rgba(5,14,29,.91);
+  --line:rgba(91,194,239,.32);
+  --muted:#91a9c2;
 }
-
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-    font-family: Arial, sans-serif;
-    touch-action: none;
-}
-
-#game {
-    position: fixed;
-    inset: 0;
-}
-
-canvas {
-    display: block;
-}
-
-/* =========================
-   LANDSCAPE WARNING
-========================= */
-
-#rotateWarning {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: #02030a;
-    color: white;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 30px;
-}
-
-.warningBox {
-    max-width: 400px;
-}
-
-.warningIcon {
-    font-size: 60px;
-    margin-bottom: 15px;
-}
-
-/* =========================
-   TOP HUD
-========================= */
-
-#hud {
-    position: fixed;
-    left: 15px;
-    top: 12px;
-    z-index: 20;
-    color: white;
-    pointer-events: none;
-}
-
-#title {
-    font-size: clamp(16px, 2.2vw, 28px);
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-shadow:
-        0 0 8px #4da6ff,
-        0 0 20px #1478ff;
-}
-
-#location {
-    margin-top: 5px;
-    font-size: clamp(11px, 1.4vw, 16px);
-    color: #8fc7ff;
-}
-
-/* =========================
-   DESTINATION PANEL
-========================= */
-
-#panel {
-    position: fixed;
-    right: 15px;
-    top: 15px;
-    width: min(360px, 38vw);
-    max-height: calc(100vh - 30px);
-    z-index: 30;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(8,15,35,.94),
-            rgba(3,6,18,.88)
-        );
-
-    border: 1px solid rgba(90,170,255,.45);
-    border-radius: 16px;
-    padding: 14px;
-
-    color: white;
-
-    box-shadow:
-        0 0 25px rgba(0,100,255,.18),
-        inset 0 0 20px rgba(0,120,255,.05);
-
-    backdrop-filter: blur(10px);
-
-    overflow-y: auto;
-}
-
-.panelTitle {
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
-}
-
-.categories {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 7px;
-}
-
-.category {
-    border: 1px solid rgba(100,180,255,.35);
-    background: rgba(20,40,80,.65);
-    color: #d8ecff;
-
-    padding: 9px 4px;
-    border-radius: 9px;
-
-    font-size: 11px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.category.active {
-    background: rgba(35,130,255,.65);
-    border-color: #69b7ff;
-    box-shadow: 0 0 12px rgba(50,150,255,.35);
-}
-
-.destinations {
-    margin-top: 10px;
-    display: grid;
-    gap: 7px;
-}
-
-.destination {
-    padding: 10px;
-    border-radius: 9px;
-
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.08);
-
-    cursor: pointer;
-}
-
-.destination:hover,
-.destination:active {
-    background: rgba(30,100,180,.3);
-}
-
-.destinationName {
-    font-size: 13px;
-    font-weight: bold;
-}
-
-.destinationInfo {
-    margin-top: 3px;
-    font-size: 10px;
-    color: #91a9c8;
-}
-
-#travelButton {
-    width: 100%;
-    margin-top: 12px;
-
-    padding: 12px;
-
-    border: none;
-    border-radius: 10px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #1265e8,
-            #6c25ff
-        );
-
-    color: white;
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: 1px;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 0 18px rgba(60,100,255,.35);
-}
-
-#travelButton:active {
-    transform: scale(.97);
-}
-
-/* =========================
-   SHIP INFO
-========================= */
-
-#shipInfo {
-    position: fixed;
-    left: 15px;
-    bottom: 15px;
-    z-index: 20;
-
-    color: #b8d9ff;
-    font-size: 11px;
-
-    background: rgba(0,0,0,.4);
-    padding: 8px 11px;
-    border-radius: 8px;
-
-    pointer-events: none;
-}
-
-/* =========================
-   WARP
-========================= */
-
-#warp {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-
-    pointer-events: none;
-
-    opacity: 0;
-
-    background:
-        radial-gradient(
-            ellipse at center,
-            rgba(255,255,255,.03) 0%,
-            rgba(0,0,0,0) 40%,
-            rgba(0,0,0,.8) 100%
-        );
-}
-
-#warp.active {
-    animation: warpPulse 4s ease-in-out;
-}
-
-@keyframes warpPulse {
-
-    0% {
-        opacity: 0;
-    }
-
-    15% {
-        opacity: .2;
-    }
-
-    35% {
-        opacity: .8;
-    }
-
-    60% {
-        opacity: 1;
-    }
-
-    85% {
-        opacity: .7;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-/* =========================
-   WARP TEXT
-========================= */
-
-#warpText {
-    position: fixed;
-    inset: 0;
-
-    z-index: 60;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: white;
-
-    font-size: clamp(22px, 4vw, 48px);
-    font-weight: 900;
-    letter-spacing: 5px;
-
-    opacity: 0;
-    pointer-events: none;
-
-    text-shadow:
-        0 0 10px #5eb7ff,
-        0 0 30px #246cff;
-}
-
-#warpText.active {
-    animation: warpTextAnim 4s ease;
-}
-
-@keyframes warpTextAnim {
-
-    0%, 15% {
-        opacity: 0;
-        transform: scale(.7);
-    }
-
-    30%, 70% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    100% {
-        opacity: 0;
-        transform: scale(1.4);
-    }
-}
-
-/* =========================
-   LOADING
-========================= */
-
-#loading {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #010208;
-
-    color: white;
-}
-
-.loaderBox {
-    text-align: center;
-}
-
-.loaderTitle {
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: 4px;
-}
-
-.loaderBar {
-    width: 260px;
-    height: 4px;
-
-    margin-top: 20px;
-
-    background: #172035;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.loaderProgress {
-    height: 100%;
-    width: 0%;
-
-    background: linear-gradient(
-        90deg,
-        #2078ff,
-        #8d4cff
-    );
-
-    transition: width .2s;
-}
-
-/* =========================
-   FPS
-========================= */
-
-#fps {
-    position: fixed;
-    bottom: 10px;
-    right: 15px;
-
-    z-index: 30;
-
-    font-size: 10px;
-    color: rgba(255,255,255,.45);
-
-    pointer-events: none;
-}
-
-@media (orientation: portrait) {
-    #rotateWarning {
-        display: flex;
-    }
-
-    #game,
-    #hud,
-    #panel,
-    #shipInfo,
-    #fps {
-        display: none;
-    }
+*{box-sizing:border-box}
+html,body,#app{margin:0;width:100%;height:100%;overflow:hidden;background:#02040a;color:#e8f7ff;font-family:Arial,sans-serif}
+body{touch-action:none}
+canvas{display:block}
+button,input,select{font:inherit}
+button{color:#e5f6ff;background:#0a1b30;border:1px solid var(--line);border-radius:5px;padding:9px;cursor:pointer}
+button:active,button.active{background:#125174;border-color:var(--cyan)}
+#app{position:relative}
+#scene{position:absolute;inset:0}
+#hud{position:absolute;inset:0;pointer-events:none}
+.panel{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);border-radius:6px}
+.clickable{pointer-events:auto}
+#brand{position:absolute;left:12px;top:10px;padding:9px 12px}
+#brand b{font-size:clamp(12px,2.1vw,18px);letter-spacing:2px;color:var(--cyan)}
+#brand small{display:block;font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:5px}
+#telemetry{position:absolute;right:12px;top:10px;width:190px;padding:9px 11px;font-size:11px}
+.row{display:flex;justify-content:space-between;gap:10px;margin:4px 0}
+.row span:first-child{color:var(--muted)}
+.row span:last-child{color:var(--cyan);text-align:right}
+#status{position:absolute;top:86px;left:12px;padding:8px 10px;font-size:10px;max-width:48%;color:#bdefff}
+#targetLabel{position:absolute;left:50%;top:16%;transform:translateX(-50%);text-align:center;font-size:11px;letter-spacing:2px;color:#bcefff;text-shadow:0 0 10px #197ba5;white-space:nowrap}
+#targetLabel small{display:block;color:#9db9d2;font-size:10px;margin-top:5px;letter-spacing:1px}
+#reticle{position:absolute;left:50%;top:48%;width:30px;height:30px;border:1px solid #7de4ff7a;border-radius:50%;transform:translate(-50%,-50%)}
+#reticle:before,#reticle:after{content:"";position:absolute;background:#7de4ff}
+#reticle:before{width:42px;height:1px;left:-7px;top:14px}
+#reticle:after{height:42px;width:1px;top:-7px;left:14px}
+#topButtons{position:absolute;left:12px;top:86px;display:flex;gap:6px}
+#topButtons button{font-size:10px;padding:8px 10px}
+#destinationPanel{position:absolute;top:126px;left:12px;width:min(300px,72vw);max-height:calc(100% - 260px);overflow:auto;padding:11px;display:none}
+#destinationPanel h3{font-size:12px;letter-spacing:2px;color:var(--cyan);margin:0 0 10px}
+#destinationPanel p{font-size:10px;color:var(--muted);line-height:1.5}
+#search{width:100%;padding:9px;border:1px solid var(--line);background:#06101e;color:white;border-radius:4px;margin-bottom:8px}
+#categories{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+#categories button{font-size:10px;flex:1;min-width:65px;padding:7px 4px}
+#destList{display:flex;flex-direction:column;gap:5px}
+.dest{display:block;width:100%;text-align:left;padding:9px}
+.dest strong{display:block;font-size:11px}
+.dest small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+#selectedInfo{font-size:10px;color:#b9e9ff;line-height:1.6;padding:8px;background:#061323;margin-top:8px}
+#navActions{display:flex;gap:6px;margin-top:8px}
+#navActions button{flex:1;font-size:10px}
+#mapPanel{position:absolute;right:12px;top:145px;width:180px;padding:9px;display:none}
+#mapPanel h3{font-size:11px;color:var(--cyan);margin:0 0 7px}
+#mapCanvas{width:100%;height:125px;border:1px solid var(--line);background:#020914}
+#mapPanel p{font-size:9px;line-height:1.4;color:var(--muted)}
+#controls{position:absolute;bottom:9px;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 10px;gap:8px}
+.ctrlGroup{display:flex;align-items:flex-end;gap:6px;pointer-events:auto}
+.ctrlColumn{display:flex;flex-direction:column;gap:5px}
+.ctrlRow{display:flex;gap:5px}
+.ctrl{width:45px;height:42px;padding:5px;font-size:14px;touch-action:none;user-select:none}
+.ctrl.wide{width:74px;font-size:10px}
+.ctrl.thrust{width:70px;font-size:10px;background:#084268}
+.ctrl.held{background:#14668a;border-color:#9cecff}
+#throttleBox{width:112px;padding:8px;text-align:center;pointer-events:auto}
+#throttleBox label{font-size:9px;color:var(--muted)}
+#throttle{width:100%;accent-color:var(--cyan);margin:10px 0 5px}
+#throttleValue{font-size:11px;color:var(--cyan)}
+#helpText{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);font-size:9px;color:#9db6cc;text-align:center;white-space:nowrap}
+#notice{position:absolute;top:29%;left:50%;transform:translateX(-50%);display:none;padding:10px 14px;font-size:11px;text-align:center;max-width:85%}
+#warpFX{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 0%,#13517b22 48%,#45caff35 100%)}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#02040a;z-index:10;text-align:center;color:var(--cyan);font-size:13px;letter-spacing:2px}
+#loading small{display:block;font-size:10px;letter-spacing:0;color:var(--muted);margin-top:10px}
+#startPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,92vw);padding:18px;z-index:12}
+#startPanel h2{font-size:18px;letter-spacing:2px;color:var(--cyan);margin:0 0 10px}
+#startPanel p,#startPanel li{font-size:11px;color:#b7cadc;line-height:1.6}
+#startPanel ul{padding-left:18px}
+#startButton{width:100%;background:#075a83;border-color:#67ddff;padding:12px}
+#mobileWarning{display:none;position:fixed;inset:0;background:#02040a;z-index:100;align-items:center;justify-content:center;text-align:center;padding:25px}
+@media(orientation:portrait){#mobileWarning{display:flex}}
+@media(max-height:450px){
+ #brand{top:5px;left:6px;padding:6px 8px}
+ #brand small{margin-top:2px;font-size:8px}
+ #telemetry{top:5px;right:6px;padding:5px 7px;width:155px;font-size:9px}
+ .row{margin:2px 0}
+ #topButtons{top:65px;left:6px}
+ #status{top:65px;left:6px;padding:5px;font-size:9px}
+ #destinationPanel{top:100px;left:6px;max-height:calc(100% - 180px)}
+ #mapPanel{top:100px;right:6px}
+ #controls{bottom:4px;padding:0 5px;gap:4px}
+ .ctrl{width:37px;height:35px}
+ .ctrl.wide{width:59px}
+ .ctrl.thrust{width:58px}
+ #throttleBox{width:85px;padding:5px}
+ #helpText{bottom:78px}
 }
 </style>
 </head>
 
 <body>
+<div id="app">
+ <div id="scene"></div>
+ <div id="hud">
+  <div id="brand" class="panel">
+   <b>THE INTESTELLER TRAVLER</b>
+   <small>INTERSTELLAR FLIGHT SYSTEM</small>
+  </div>
 
-<div id="game"></div>
+  <div id="telemetry" class="panel">
+   <div class="row"><span>VELOCITY</span><span id="speed">0 m/s</span></div>
+   <div class="row"><span>THROTTLE</span><span id="throttleRead">0%</span></div>
+   <div class="row"><span>NEAREST BODY</span><span id="nearest">—</span></div>
+   <div class="row"><span>ALTITUDE</span><span id="altitude">—</span></div>
+   <div class="row"><span>FLIGHT MODE</span><span id="mode">MANUAL</span></div>
+   <div class="row"><span>GRAVITY</span><span id="gravityRead">ON</span></div>
+  </div>
 
-<div id="rotateWarning">
-    <div class="warningBox">
-        <div class="warningIcon">📱↔️</div>
-        <h2>LANDSCAPE MODE REQUIRED</h2>
-        <p>
-            Rotate your device sideways to play
-            THE INTESTELLER TRAVLER.
-        </p>
+  <div id="status" class="panel">FLIGHT COMPUTER ONLINE</div>
+
+  <div id="topButtons" class="clickable">
+   <button id="destButton">DESTINATIONS ▾</button>
+   <button id="mapButton">STAR MAP</button>
+   <button id="trajectoryButton">TRAJECTORY ON</button>
+  </div>
+
+  <div id="targetLabel">FREE FLIGHT<small>CAMERA: CHASE / TOUCH TO ORBIT</small></div>
+  <div id="reticle"></div>
+  <div id="warpFX"></div>
+  <div id="notice" class="panel"></div>
+
+  <div id="destinationPanel" class="panel clickable">
+   <h3>GALACTIC NAVIGATION</h3>
+   <input id="search" placeholder="Search stars, planets, systems...">
+   <div id="categories">
+    <button class="active" data-category="all">ALL</button>
+    <button data-category="stars">STARS</button>
+    <button data-category="solar">SOLAR SYSTEM</button>
+    <button data-category="exoplanets">EXOPLANETS</button>
+    <button data-category="missions">MISSIONS</button>
+   </div>
+   <p>Star distances are shown in light-years. Interstellar positions are illustrative; the local solar-system view uses a separate compressed scale.</p>
+   <div id="destList"></div>
+   <div id="selectedInfo">Select a destination to view its information.</div>
+   <div id="navActions">
+    <button id="setTarget">SET TARGET</button>
+    <button id="warpButton">WARP</button>
+   </div>
+  </div>
+
+  <div id="mapPanel" class="panel clickable">
+   <h3>GALACTIC OVERVIEW</h3>
+   <canvas id="mapCanvas" width="360" height="250"></canvas>
+   <p>Top-down schematic. Marker positions are for navigation, not an exact astronomical chart.</p>
+   <button id="mapTarget" style="width:100%;font-size:10px">CENTER ON TARGET</button>
+  </div>
+
+  <div id="controls">
+   <div class="ctrlGroup">
+    <div class="ctrlColumn">
+     <button class="ctrl" data-control="pitchUp">▲</button>
+     <div class="ctrlRow">
+      <button class="ctrl" data-control="yawLeft">◀</button>
+      <button class="ctrl" data-control="pitchDown">▼</button>
+      <button class="ctrl" data-control="yawRight">▶</button>
+     </div>
     </div>
+    <div class="ctrlColumn">
+     <button class="ctrl" data-control="rollLeft">⟲</button>
+     <button class="ctrl" data-control="rollRight">⟳</button>
+    </div>
+   </div>
+
+   <div id="throttleBox" class="panel">
+    <label for="throttle">ENGINE THROTTLE</label>
+    <input id="throttle" type="range" min="0" max="100" value="0">
+    <div id="throttleValue">0%</div>
+    <button id="brake" style="width:100%;font-size:10px;margin-top:5px">BRAKE</button>
+   </div>
+
+   <div class="ctrlGroup">
+    <div class="ctrlColumn">
+     <button class="ctrl thrust" data-control="forward">THRUST ▲</button>
+     <button class="ctrl thrust" data-control="reverse">REVERSE ▼</button>
+    </div>
+    <div class="ctrlColumn">
+     <button id="cameraButton" class="ctrl wide">CAMERA</button>
+     <button id="resetButton" class="ctrl wide">RESET</button>
+    </div>
+   </div>
+  </div>
+
+  <div id="helpText">DRAG SCREEN TO ORBIT CAMERA · W/S THRUST · A/D YAW · Q/E ROLL · SPACE BRAKE</div>
+ </div>
+
+ <div id="loading"><div>INITIALIZING FLIGHT SYSTEMS<small id="loadText">Loading 3D universe...</small></div></div>
+
+ <div id="startPanel" class="panel">
+  <h2>FLIGHT DECK</h2>
+  <p>Explore a 3D universe, fly with thrust and inertia, track a projected trajectory, and navigate between nearby stars and known planetary systems.</p>
+  <ul>
+   <li>Drag anywhere on the scene to orbit the chase camera.</li>
+   <li>Touch the control buttons to rotate and accelerate.</li>
+   <li>Open Destinations to browse stars, planets, exoplanets, and missions.</li>
+   <li>Gravity and the trajectory prediction are simplified game physics, not mission-grade orbital calculations.</li>
+  </ul>
+  <button id="startButton">ENTER FLIGHT DECK</button>
+ </div>
 </div>
 
-<div id="loading">
-    <div class="loaderBox">
-        <div class="loaderTitle">
-            THE INTESTELLER TRAVLER
-        </div>
-
-        <div class="loaderBar">
-            <div
-                id="loaderProgress"
-                class="loaderProgress">
-            </div>
-        </div>
-
-        <p id="loadingText">
-            Initializing universe...
-        </p>
-    </div>
+<div id="mobileWarning">
+ <div><div style="font-size:40px">↻</div><h2>ROTATE DEVICE</h2><p>Turn your phone sideways to play.</p></div>
 </div>
 
-<div id="hud">
-
-    <div id="title">
-        THE INTESTELLER TRAVLER
-    </div>
-
-    <div id="location">
-        LOCATION: EARTH ORBIT
-    </div>
-
-</div>
-
-<div id="panel">
-
-    <div class="panelTitle">
-        DESTINATION
-    </div>
-
-    <div class="categories">
-
-        <button class="category active"
-                data-type="planet">
-            🪐 PLANETS
-        </button>
-
-        <button class="category"
-                data-type="star">
-            ⭐ STARS
-        </button>
-
-        <button class="category"
-                data-type="galaxy">
-            🌌 GALAXIES
-        </button>
-
-        <button class="category"
-                data-type="blackhole">
-            🕳️ BLACK HOLES
-        </button>
-
-        <button class="category"
-                data-type="nebula">
-            ☁️ NEBULAE
-        </button>
-
-        <button class="category"
-                data-type="other">
-            ✨ OTHER
-        </button>
-
-    </div>
-
-    <div
-        id="destinations"
-        class="destinations">
-    </div>
-
-    <button id="travelButton">
-        INITIATE WARP
-    </button>
-
-</div>
-
-<div id="shipInfo">
-    DRAG: ROTATE SHIP &nbsp; • &nbsp;
-    PINCH: ZOOM
-</div>
-
-<div id="fps">
-    FPS: --
-</div>
-
-<div id="warp"></div>
-
-<div id="warpText">
-    INITIATING WARP
-</div>
-
-<script type="module">
-
-/* =========================================================
-   THREE.JS
-========================================================= */
-
-import * as THREE from
-'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-
-import { GLTFLoader } from
-'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
-
-
-/* =========================================================
-   BASIC VARIABLES
-========================================================= */
-
-let scene;
-let camera;
-let renderer;
-
-let ship = null;
-
-let earth;
-let sun;
-
-let destinationObjects = [];
-
-let selectedDestination = null;
-
-let stars;
-
-let warpStars;
-
-let isWarping = false;
-
-let clock = new THREE.Clock();
-
-let lastTime = performance.now();
-let frameCount = 0;
-
-
-/* =========================================================
-   DOM
-========================================================= */
-
-const game = document.getElementById("game");
-
-const loading =
-    document.getElementById("loading");
-
-const loaderProgress =
-    document.getElementById("loaderProgress");
-
-const loadingText =
-    document.getElementById("loadingText");
-
-const destinationsElement =
-    document.getElementById("destinations");
-
-const locationElement =
-    document.getElementById("location");
-
-const travelButton =
-    document.getElementById("travelButton");
-
-const warp =
-    document.getElementById("warp");
-
-const warpText =
-    document.getElementById("warpText");
-
-const fpsElement =
-    document.getElementById("fps");
-
-
-/* =========================================================
-   DESTINATION DATABASE
-========================================================= */
-
-const destinations = {
-
-    planet: [
-
-        {
-            name: "Earth",
-            description: "Home Planet",
-            position: new THREE.Vector3(0,0,-30),
-            type: "earth"
-        },
-
-        {
-            name: "Moon",
-            description: "Earth's natural satellite",
-            position: new THREE.Vector3(25,5,-45),
-            type: "moon"
-        },
-
-        {
-            name: "Mars",
-            description: "The Red Planet",
-            position: new THREE.Vector3(-40,10,-80),
-            type: "mars"
-        },
-
-        {
-            name: "Jupiter",
-            description: "Gas giant",
-            position: new THREE.Vector3(70,-20,-140),
-            type: "jupiter"
-        },
-
-        {
-            name: "Saturn",
-            description: "Ringed gas giant",
-            position: new THREE.Vector3(-90,25,-180),
-            type: "saturn"
-        }
-
-    ],
-
-    star: [
-
-        {
-            name: "Proxima Centauri",
-            description: "Nearest known star",
-            position: new THREE.Vector3(80,40,-250),
-            type: "star"
-        },
-
-        {
-            name: "Sirius",
-            description: "Bright nearby star",
-            position: new THREE.Vector3(-100,-20,-320),
-            type: "star"
-        },
-
-        {
-            name: "Betelgeuse",
-            description: "Red supergiant",
-            position: new THREE.Vector3(130,70,-450),
-            type: "redstar"
-        },
-
-        {
-            name: "Vega",
-            description: "Bright blue-white star",
-            position: new THREE.Vector3(-150,80,-400),
-            type: "star"
-        }
-
-    ],
-
-    galaxy: [
-
-        {
-            name: "Milky Way",
-            description: "Our galaxy",
-            position: new THREE.Vector3(0,0,-500),
-            type: "galaxy"
-        },
-
-        {
-            name: "Andromeda",
-            description: "Nearest major galaxy",
-            position: new THREE.Vector3(200,100,-700),
-            type: "galaxy"
-        },
-
-        {
-            name: "Whirlpool Galaxy",
-            description: "Spiral galaxy",
-            position: new THREE.Vector3(-250,-80,-900),
-            type: "galaxy"
-        }
-
-    ],
-
-    blackhole: [
-
-        {
-            name: "Sagittarius A*",
-            description: "Black hole at Milky Way center",
-            position: new THREE.Vector3(0,0,-600),
-            type: "blackhole"
-        },
-
-        {
-            name: "M87*",
-            description: "Supermassive black hole",
-            position: new THREE.Vector3(250,-100,-1000),
-            type: "blackhole"
-        }
-
-    ],
-
-    nebula: [
-
-        {
-            name: "Orion Nebula",
-            description: "Stellar nursery",
-            position: new THREE.Vector3(-100,100,-350),
-            type: "nebula"
-        },
-
-        {
-            name: "Crab Nebula",
-            description: "Supernova remnant",
-            position: new THREE.Vector3(180,-60,-550),
-            type: "nebula"
-        },
-
-        {
-            name: "Eagle Nebula",
-            description: "Pillars of Creation region",
-            position: new THREE.Vector3(-220,80,-700),
-            type: "nebula"
-        }
-
-    ],
-
-    other: [
-
-        {
-            name: "Deep Space",
-            description: "Unknown region",
-            position: new THREE.Vector3(0,0,-1000),
-            type: "deep"
-        },
-
-        {
-            name: "Unknown Sector",
-            description: "Uncharted space",
-            position: new THREE.Vector3(350,150,-1300),
-            type: "deep"
-        }
-
-    ]
-
-};
-
-
-/* =========================================================
-   INIT
-========================================================= */
-
-function init() {
-
-    scene = new THREE.Scene();
-
-    scene.background =
-        new THREE.Color(0x000207);
-
-    scene.fog =
-        new THREE.FogExp2(
-            0x000207,
-            0.0007
-        );
-
-
-    /* CAMERA */
-
-    camera = new THREE.PerspectiveCamera(
-        55,
-        window.innerWidth /
-        window.innerHeight,
-        0.1,
-        5000
-    );
-
-    camera.position.set(
-        0,
-        4,
-        12
-    );
-
-
-    /* RENDERER */
-
-    renderer = new THREE.WebGLRenderer({
-
-        antialias: false,
-
-        powerPreference:
-            "high-performance"
-
-    });
-
-    renderer.setPixelRatio(
-        Math.min(
-            window.devicePixelRatio || 1,
-            1.5
-        )
-    );
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
-
-    renderer.outputColorSpace =
-        THREE.SRGBColorSpace;
-
-    game.appendChild(
-        renderer.domElement
-    );
-
-
-    /* LIGHTING */
-
-    const ambient =
-        new THREE.HemisphereLight(
-            0x88aaff,
-            0x02030a,
-            1.2
-        );
-
-    scene.add(ambient);
-
-
-    const directional =
-        new THREE.DirectionalLight(
-            0xffffff,
-            2.5
-        );
-
-    directional.position.set(
-        100,
-        100,
-        100
-    );
-
-    scene.add(directional);
-
-
-    /* CREATE UNIVERSE */
-
-    createStarfield();
-
-    createEarth();
-
-    createSun();
-
-    createWarpStars();
-
-
-    /* LOAD SHIP */
-
-    loadShip();
-
-
-    /* DESTINATION UI */
-
-    setupCategories();
-
-    showDestinations("planet");
-
-
-    /* INPUT */
-
-    setupControls();
-
-    window.addEventListener(
-        "resize",
-        resize
-    );
-
-
-    /* START */
-
-    animate();
-
+<script type="importmap">
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+ }
 }
-
-
-/* =========================================================
-   STARFIELD
-========================================================= */
-
-function createStarfield() {
-
-    const count = 12000;
-
-    const geometry =
-        new THREE.BufferGeometry();
-
-    const positions =
-        new Float32Array(
-            count * 3
-        );
-
-    for (
-        let i = 0;
-        i < count;
-        i++
-    ) {
-
-        const radius =
-            300 +
-            Math.random() * 3000;
-
-        const theta =
-            Math.random() *
-            Math.PI * 2;
-
-        const phi =
-            Math.acos(
-                2 * Math.random() - 1
-            );
-
-        positions[i * 3] =
-            radius *
-            Math.sin(phi) *
-            Math.cos(theta);
-
-        positions[i * 3 + 1] =
-            radius *
-            Math.sin(phi) *
-            Math.sin(theta);
-
-        positions[i * 3 + 2] =
-            radius *
-            Math.cos(phi);
-
-    }
-
-    geometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(
-            positions,
-            3
-        )
-    );
-
-
-    const material =
-        new THREE.PointsMaterial({
-
-            color: 0xffffff,
-
-            size: 1.4,
-
-            sizeAttenuation: true
-
-        });
-
-
-    stars =
-        new THREE.Points(
-            geometry,
-            material
-        );
-
-    scene.add(stars);
-
-}
-
-
-/* =========================================================
-   WARP STARS
-========================================================= */
-
-function createWarpStars() {
-
-    const count = 1800;
-
-    const geometry =
-        new THREE.BufferGeometry();
-
-    const positions =
-        new Float32Array(
-            count * 3
-        );
-
-    for (
-        let i = 0;
-        i < count;
-        i++
-    ) {
-
-        positions[i * 3] =
-            (Math.random() - .5) *
-            120;
-
-        positions[i * 3 + 1] =
-            (Math.random() - .5) *
-            70;
-
-        positions[i * 3 + 2] =
-            -Math.random() *
-            800;
-
-    }
-
-    geometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(
-            positions,
-            3
-        )
-    );
-
-    const material =
-        new THREE.PointsMaterial({
-
-            color: 0x8fc9ff,
-
-            size: 2,
-
-            transparent: true,
-
-            opacity: 0
-
-        });
-
-    warpStars =
-        new THREE.Points(
-            geometry,
-            material
-        );
-
-    scene.add(warpStars);
-
-}
-
-
-/* =========================================================
-   EARTH
-========================================================= */
-
-function createEarth() {
-
-    const geometry =
-        new THREE.SphereGeometry(
-            18,
-            64,
-            32
-        );
-
-    const material =
-        new THREE.MeshStandardMaterial({
-
-            color: 0x164d9b,
-
-            roughness: .8,
-
-            metalness: .05
-
-        });
-
-    earth =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-    earth.position.set(
-        0,
-        -35,
-        -90
-    );
-
-    scene.add(earth);
-
-
-    /* ATMOSPHERE */
-
-    const atmosphereGeometry =
-        new THREE.SphereGeometry(
-            18.8,
-            32,
-            16
-        );
-
-    const atmosphereMaterial =
-        new THREE.MeshBasicMaterial({
-
-            color: 0x3c9cff,
-
-            transparent: true,
-
-            opacity: .12,
-
-            side:
-                THREE.BackSide
-
-        });
-
-    const atmosphere =
-        new THREE.Mesh(
-            atmosphereGeometry,
-            atmosphereMaterial
-        );
-
-    earth.add(atmosphere);
-
-}
-
-
-/* =========================================================
-   SUN
-========================================================= */
-
-function createSun() {
-
-    const geometry =
-        new THREE.SphereGeometry(
-            25,
-            32,
-            16
-        );
-
-    const material =
-        new THREE.MeshBasicMaterial({
-            color: 0xffc34d
-        });
-
-    sun =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-    sun.position.set(
-        120,
-        80,
-        -250
-    );
-
-    scene.add(sun);
-
-
-    const light =
-        new THREE.PointLight(
-            0xffe5b0,
-            3,
-            1000
-        );
-
-    light.position.copy(
-        sun.position
-    );
-
-    scene.add(light);
-
-}
-
-
-/* =========================================================
-   SHIP
-========================================================= */
-
-function loadShip() {
-     setTimeout(() => {
-    document.getElementById("loading").style.display = "none";
-}, 2000); 
-
-    loadingText.textContent =
-        "Loading IXS Enterprise...";
-
-    const loader =
-        new GLTFLoader();
-
-    loader.load(
-
-        "ixsenterprise.glb",
-
-        function(gltf) {
-
-            ship =
-                gltf.scene;
-
-            ship.scale.set(
-                1,
-                1,
-                1
-            );
-
-            ship.position.set(
-                0,
-                0,
-                0
-            );
-
-
-            /* AUTO CENTER */
-
-            const box =
-                new THREE.Box3()
-                    .setFromObject(ship);
-
-            const center =
-                box.getCenter(
-                    new THREE.Vector3()
-                );
-
-            ship.position.sub(
-                center
-            );
-
-
-            /* FIT SHIP */
-
-            const size =
-                box.getSize(
-                    new THREE.Vector3()
-                );
-
-            const largest =
-                Math.max(
-                    size.x,
-                    size.y,
-                    size.z
-                );
-
-            if (largest > 0) {
-
-                const scale =
-                    5 / largest;
-
-                ship.scale.setScalar(
-                    scale
-                );
-
-            }
-
-
-            scene.add(ship);
-
-
-            loaderProgress.style.width =
-                "100%";
-
-            loadingText.textContent =
-                "Universe ready.";
-
-
-            setTimeout(() => {
-
-                loading.style.display =
-                    "none";
-
-            }, 700);
-
-        },
-
-        function(progress) {
-
-            if (
-                progress.total > 0
-            ) {
-
-                const percent =
-                    progress.loaded /
-                    progress.total *
-                    100;
-
-                loaderProgress.style.width =
-                    percent + "%";
-
-            }
-
-        },
-
-        function(error) {
-
-            console.error(error);
-
-            loadingText.innerHTML =
-                "Could not load IXS Enterprise.<br>" +
-                "Make sure <b>ixsenterprise.glb</b> " +
-                "is beside index.html.";
-
-            loaderProgress.style.width =
-                "100%";
-
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   DESTINATION UI
-========================================================= */
-
-function setupCategories() {
-
-    document
-        .querySelectorAll(".category")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(
-                            ".category"
-                        )
-                        .forEach(b =>
-                            b.classList.remove(
-                                "active"
-                            )
-                        );
-
-                    button.classList.add(
-                        "active"
-                    );
-
-                    showDestinations(
-                        button.dataset.type
-                    );
-
-                }
-            );
-
-        });
-
-}
-
-
-function showDestinations(type) {
-
-    destinationsElement.innerHTML =
-        "";
-
-    destinations[type].forEach(
-        destination => {
-
-            const element =
-                document.createElement(
-                    "div"
-                );
-
-            element.className =
-                "destination";
-
-            element.innerHTML = `
-
-                <div class="destinationName">
-                    ${destination.name}
-                </div>
-
-                <div class="destinationInfo">
-                    ${destination.description}
-                </div>
-
-            `;
-
-            element.addEventListener(
-                "click",
-                () => {
-
-                    selectedDestination =
-                        destination;
-
-                    document
-                        .querySelectorAll(
-                            ".destination"
-                        )
-                        .forEach(
-                            d =>
-                            d.style.borderColor =
-                            "rgba(255,255,255,.08)"
-                        );
-
-                    element.style.borderColor =
-                        "#56aaff";
-
-                }
-            );
-
-            destinationsElement.appendChild(
-                element
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   TRAVEL
-========================================================= */
-
-travelButton.addEventListener(
-    "click",
-    startWarp
-);
-
-
-function startWarp() {
-
-    if (
-        isWarping ||
-        !selectedDestination
-    ) {
-        return;
-    }
-
-    isWarping = true;
-
-    travelButton.disabled =
-        true;
-
-    warp.classList.remove(
-        "active"
-    );
-
-    warpText.classList.remove(
-        "active"
-    );
-
-
-    void warp.offsetWidth;
-
-
-    warp.classList.add(
-        "active"
-    );
-
-    warpText.textContent =
-        "INITIATING WARP";
-
-    warpText.classList.add(
-        "active"
-    );
-
-
-    warpStars.material.opacity =
-        1;
-
-
-    const start =
-        performance.now();
-
-    const duration =
-        4000;
-
-
-    function warpAnimation(
-        now
-    ) {
-
-        const progress =
-            Math.min(
-                (now - start) /
-                duration,
-                1
-            );
-
-
-        /* accelerate */
-
-        const speed =
-            2 +
-            progress *
-            progress *
-            100;
-
-
-        const position =
-            warpStars.geometry
-                .attributes
-                .position
-                .array;
-
-
-        for (
-            let i = 0;
-            i < position.length;
-            i += 3
-        ) {
-
-            position[i + 2] +=
-                speed;
-
-            if (
-                position[i + 2] > 20
-            ) {
-
-                position[i + 2] =
-                    -800;
-
-            }
-
-        }
-
-
-        warpStars.geometry
-            .attributes
-            .position
-            .needsUpdate = true;
-
-
-        if (
-            progress < 1
-        ) {
-
-            requestAnimationFrame(
-                warpAnimation
-            );
-
-        } else {
-
-            finishWarp();
-
-        }
-
-    }
-
-
-    requestAnimationFrame(
-        warpAnimation
-    );
-
-}
-
-
-function finishWarp() {
-
-    const destination =
-        selectedDestination;
-
-    locationElement.textContent =
-        "LOCATION: " +
-        destination.name.toUpperCase();
-
-
-    createDestinationScene(
-        destination
-    );
-
-
-    warpStars.material.opacity =
-        0;
-
-    warp.classList.remove(
-        "active"
-    );
-
-    warpText.classList.remove(
-        "active"
-    );
-
-
-    travelButton.disabled =
-        false;
-
-    isWarping = false;
-
-}
-
-
-/* =========================================================
-   DESTINATION OBJECTS
-========================================================= */
-
-function clearDestinationObjects() {
-
-    destinationObjects
-        .forEach(object => {
-
-            scene.remove(
-                object
-            );
-
-            object.traverse(
-                child => {
-
-                    if (
-                        child.geometry
-                    ) {
-
-                        child.geometry.dispose();
-
-                    }
-
-                    if (
-                        child.material
-                    ) {
-
-                        if (
-                            Array.isArray(
-                                child.material
-                            )
-                        ) {
-
-                            child.material
-                                .forEach(
-                                    m =>
-                                    m.dispose()
-                                );
-
-                        } else {
-
-                            child.material
-                                .dispose();
-
-                        }
-
-                    }
-
-                }
-            );
-
-        });
-
-    destinationObjects =
-        [];
-
-}
-
-
-function createDestinationScene(
-    destination
-) {
-
-    clearDestinationObjects();
-
-
-    const type =
-        destination.type;
-
-
-    if (
-        type === "earth"
-    ) {
-
-        createPlanet(
-            destination.position,
-            20,
-            0x1b63ad,
-            "Earth"
-        );
-
-    }
-
-
-    else if (
-        type === "moon"
-    ) {
-
-        createPlanet(
-            destination.position,
-            14,
-            0x888888,
-            "Moon"
-        );
-
-    }
-
-
-    else if (
-        type === "mars"
-    ) {
-
-        createPlanet(
-            destination.position,
-            17,
-            0xb84d32,
-            "Mars"
-        );
-
-    }
-
-
-    else if (
-        type === "jupiter"
-    ) {
-
-        createGasGiant(
-            destination.position
-        );
-
-    }
-
-
-    else if (
-        type === "saturn"
-    ) {
-
-        createSaturn(
-            destination.position
-        );
-
-    }
-
-
-    else if (
-        type === "star" ||
-        type === "redstar"
-    ) {
-
-        createStar(
-            destination.position,
-            type === "redstar"
-                ? 0xff4d36
-                : 0xffe6a0
-        );
-
-    }
-
-
-    else if (
-        type === "blackhole"
-    ) {
-
-        createBlackHole(
-            destination.position
-        );
-
-    }
-
-
-    else if (
-        type === "nebula"
-    ) {
-
-        createNebula(
-            destination.position
-        );
-
-    }
-
-
-    else if (
-        type === "galaxy"
-    ) {
-
-        createGalaxy(
-            destination.position
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   PLANET
-========================================================= */
-
-function createPlanet(
-    position,
-    radius,
-    color,
-    name
-) {
-
-    const geometry =
-        new THREE.SphereGeometry(
-            radius,
-            48,
-            24
-        );
-
-    const material =
-        new THREE.MeshStandardMaterial({
-
-            color: color,
-
-            roughness: .9
-
-        });
-
-    const planet =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-    planet.position.copy(
-        position
-    );
-
-    scene.add(
-        planet
-    );
-
-    destinationObjects.push(
-        planet
-    );
-
-}
-
-
-/* =========================================================
-   JUPITER
-========================================================= */
-
-function createGasGiant(
-    position
-) {
-
-    const geometry =
-        new THREE.SphereGeometry(
-            22,
-            48,
-            24
-        );
-
-    const material =
-        new THREE.MeshStandardMaterial({
-
-            color: 0xc99572,
-
-            roughness: 1
-
-        });
-
-    const planet =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-    planet.position.copy(
-        position
-    );
-
-    scene.add(
-        planet
-    );
-
-    destinationObjects.push(
-        planet
-    );
-
-}
-
-
-/* =========================================================
-   SATURN
-========================================================= */
-
-function createSaturn(
-    position
-) {
-
-    createPlanet(
-        position,
-        20,
-        0xc9a66b,
-        "Saturn"
-    );
-
-    const ringGeometry =
-        new THREE.RingGeometry(
-            28,
-            48,
-            64
-        );
-
-    const ringMaterial =
-        new THREE.MeshBasicMaterial({
-
-            color: 0xc8b99a,
-
-            transparent: true,
-
-            opacity: .65,
-
-            side:
-                THREE.DoubleSide
-
-        });
-
-    const ring =
-        new THREE.Mesh(
-            ringGeometry,
-            ringMaterial
-        );
-
-    ring.position.copy(
-        position
-    );
-
-    ring.rotation.x =
-        Math.PI / 2.4;
-
-    scene.add(
-        ring
-    );
-
-    destinationObjects.push(
-        ring
-    );
-
-}
-
-
-/* =========================================================
-   STAR
-========================================================= */
-
-function createStar(
-    position,
-    color
-) {
-
-    const geometry =
-        new THREE.SphereGeometry(
-            28,
-            32,
-            16
-        );
-
-    const material =
-        new THREE.MeshBasicMaterial({
-            color: color
-        });
-
-    const object =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-    object.position.copy(
-        position
-    );
-
-    scene.add(
-        object
-    );
-
-    destinationObjects.push(
-        object
-    );
-
-
-    const light =
-        new THREE.PointLight(
-            color,
-            5,
-            800
-        );
-
-    light.position.copy(
-        position
-    );
-
-    scene.add(
-        light
-    );
-
-    destinationObjects.push(
-        light
-    );
-
-}
-
-
-/* =========================================================
-   BLACK HOLE
-========================================================= */
-
-function createBlackHole(
-    position
-) {
-
-    const group =
-        new THREE.Group();
-
-    group.position.copy(
-        position
-    );
-
-
-    /* EVENT HORIZON */
-
-    const blackGeometry =
-        new THREE.SphereGeometry(
-            18,
-            32,
-            16
-        );
-
-    const blackMaterial =
-        new THREE.MeshBasicMaterial({
-            color: 0x000000
-        });
-
-    const black =
-        new THREE.Mesh(
-            blackGeometry,
-            blackMaterial
-        );
-
-    group.add(
-        black
-    );
-
-
-    /* ACCRETION DISK */
-
-    const diskGeometry =
-        new THREE.RingGeometry(
-            22,
-            65,
-            96
-        );
-
-    const diskMaterial =
-        new THREE.MeshBasicMaterial({
-
-            color: 0xff7a22,
-
-            transparent: true,
-
-            opacity: .7,
-
-            side:
-                THREE.DoubleSide
-
-        });
-
-    const disk =
-        new THREE.Mesh(
-            diskGeometry,
-            diskMaterial
-        );
-
-    disk.rotation.x =
-        Math.PI / 2;
-
-    group.add(
-        disk
-    );
-
-
-    scene.add(
-        group
-    );
-
-    destinationObjects.push(
-        group
-    );
-
-}
-
-
-/* =========================================================
-   NEBULA
-========================================================= */
-
-function createNebula(
-    position
-) {
-
-    const group =
-        new THREE.Group();
-
-    group.position.copy(
-        position
-    );
-
-
-    const geometry =
-        new THREE.BufferGeometry();
-
-    const count = 1500;
-
-    const positions =
-        new Float32Array(
-            count * 3
-        );
-
-    for (
-        let i = 0;
-        i < count;
-        i++
-    ) {
-
-        const radius =
-            Math.random() * 90;
-
-        const angle =
-            Math.random() *
-            Math.PI * 2;
-
-        positions[i * 3] =
-            Math.cos(angle) *
-            radius;
-
-        positions[i * 3 + 1] =
-            (Math.random() - .5) *
-            70;
-
-        positions[i * 3 + 2] =
-            Math.sin(angle) *
-            radius;
-
-    }
-
-    geometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(
-            positions,
-            3
-        )
-    );
-
-
-    const material =
-        new THREE.PointsMaterial({
-
-            color: 0xb76cff,
-
-            size: 3,
-
-            transparent: true,
-
-            opacity: .5
-
-        });
-
-
-    const particles =
-        new THREE.Points(
-            geometry,
-            material
-        );
-
-    group.add(
-        particles
-    );
-
-    scene.add(
-        group
-    );
-
-    destinationObjects.push(
-        group
-    );
-
-}
-
-
-/* =========================================================
-   GALAXY
-========================================================= */
-
-function createGalaxy(
-    position
-) {
-
-    const geometry =
-        new THREE.BufferGeometry();
-
-    const count = 5000;
-
-    const positions =
-        new Float32Array(
-            count * 3
-        );
-
-    for (
-        let i = 0;
-        i < count;
-        i++
-    ) {
-
-        const radius =
-            Math.random() *
-            100;
-
-        const angle =
-            radius * .08 +
-            Math.random() * .4;
-
-        positions[i * 3] =
-            Math.cos(angle) *
-            radius;
-
-        positions[i * 3 + 1] =
-            (Math.random() - .5) *
-            10;
-
-        positions[i * 3 + 2] =
-            Math.sin(angle) *
-            radius;
-
-    }
-
-    geometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(
-            positions,
-            3
-        )
-    );
-
-
-    const material =
-        new THREE.PointsMaterial({
-
-            color: 0xc8a6ff,
-
-            size: 1.8
-
-        });
-
-
-    const galaxy =
-        new THREE.Points(
-            geometry,
-            material
-        );
-
-    galaxy.position.copy(
-        position
-    );
-
-    galaxy.rotation.x =
-        .4;
-
-    scene.add(
-        galaxy
-    );
-
-    destinationObjects.push(
-        galaxy
-    );
-
-}
-
-
-/* =========================================================
-   TOUCH / MOUSE SHIP CONTROL
-========================================================= */
-
-let dragging = false;
-
-let previousX = 0;
-let previousY = 0;
-
-let targetRotationX = 0;
-let targetRotationY = 0;
-
-let currentRotationX = 0;
-let currentRotationY = 0;
-
-let zoom = 12;
-
-let pinchDistance = null;
-
-
-function setupControls() {
-
-    renderer.domElement.addEventListener(
-        "pointerdown",
-        event => {
-
-            dragging = true;
-
-            previousX =
-                event.clientX;
-
-            previousY =
-                event.clientY;
-
-        }
-    );
-
-
-    renderer.domElement.addEventListener(
-        "pointermove",
-        event => {
-
-            if (!dragging || !ship) {
-                return;
-            }
-
-            const dx =
-                event.clientX -
-                previousX;
-
-            const dy =
-                event.clientY -
-                previousY;
-
-
-            targetRotationY +=
-                dx * .008;
-
-            targetRotationX +=
-                dy * .008;
-
-
-            targetRotationX =
-                THREE.MathUtils.clamp(
-                    targetRotationX,
-                    -1.4,
-                    1.4
-                );
-
-
-            previousX =
-                event.clientX;
-
-            previousY =
-                event.clientY;
-
-        }
-    );
-
-
-    renderer.domElement.addEventListener(
-        "pointerup",
-        () => {
-
-            dragging = false;
-
-        }
-    );
-
-
-    renderer.domElement.addEventListener(
-        "pointercancel",
-        () => {
-
-            dragging = false;
-
-        }
-    );
-
-
-    renderer.domElement.addEventListener(
-        "wheel",
-        event => {
-
-            zoom +=
-                event.deltaY *
-                .01;
-
-            zoom =
-                THREE.MathUtils.clamp(
-                    zoom,
-                    6,
-                    30
-                );
-
-        }
-    );
-
-
-    /* TOUCH PINCH */
-
-    renderer.domElement.addEventListener(
-        "touchstart",
-        event => {
-
-            if (
-                event.touches.length === 2
-            ) {
-
-                pinchDistance =
-                    getPinchDistance(
-                        event.touches
-                    );
-
-            }
-
-        },
-        { passive: false }
-    );
-
-
-    renderer.domElement.addEventListener(
-        "touchmove",
-        event => {
-
-            if (
-                event.touches.length === 2 &&
-                pinchDistance !== null
-            ) {
-
-                event.preventDefault();
-
-                const newDistance =
-                    getPinchDistance(
-                        event.touches
-                    );
-
-                const difference =
-                    newDistance -
-                    pinchDistance;
-
-                zoom -=
-                    difference *
-                    .03;
-
-                zoom =
-                    THREE.MathUtils.clamp(
-                        zoom,
-                        6,
-                        30
-                    );
-
-                pinchDistance =
-                    newDistance;
-
-            }
-
-        },
-        { passive: false }
-    );
-
-
-    renderer.domElement.addEventListener(
-        "touchend",
-        () => {
-
-            pinchDistance = null;
-
-        }
-    );
-
-}
-
-
-function getPinchDistance(
-    touches
-) {
-
-    const dx =
-        touches[0].clientX -
-        touches[1].clientX;
-
-    const dy =
-        touches[0].clientY -
-        touches[1].clientY;
-
-    return Math.sqrt(
-        dx * dx +
-        dy * dy
-    );
-
-}
-
-
-/* =========================================================
-   UPDATE SHIP
-========================================================= */
-
-function updateShip() {
-
-    if (!ship) {
-        return;
-    }
-
-
-    currentRotationX +=
-        (targetRotationX -
-         currentRotationX) *
-        .12;
-
-    currentRotationY +=
-        (targetRotationY -
-         currentRotationY) *
-        .12;
-
-
-    ship.rotation.x =
-        currentRotationX;
-
-    ship.rotation.y =
-        currentRotationY;
-
-
-    /* CAMERA */
-
-    camera.position.z +=
-        (zoom -
-         camera.position.z) *
-        .08;
-
-
-    camera.lookAt(
-        0,
-        0,
-        0
-    );
-
-}
-
-
-/* =========================================================
-   ANIMATION
-========================================================= */
-
-function animate() {
-
-    requestAnimationFrame(
-        animate
-    );
-
-
-    const elapsed =
-        clock.getElapsedTime();
-
-
-    /* STAR ROTATION */
-
-    if (stars) {
-
-        stars.rotation.y =
-            elapsed * .002;
-
-    }
-
-
-    /* EARTH ROTATION */
-
-    if (earth) {
-
-        earth.rotation.y +=
-            .001;
-
-    }
-
-
-    /* SUN */
-
-    if (sun) {
-
-        sun.rotation.y +=
-            .0005;
-
-    }
-
-
-    /* DESTINATION OBJECTS */
-
-    destinationObjects
-        .forEach(object => {
-
-            if (
-                object.userData &&
-                object.userData.rotate
-            ) {
-
-                object.rotation.y +=
-                    .002;
-
-            }
-
-        });
-
-
-    updateShip();
-
-
-    renderer.render(
-        scene,
-        camera
-    );
-
-
-    /* FPS */
-
-    frameCount++;
-
-    const now =
-        performance.now();
-
-    if (
-        now - lastTime >= 1000
-    ) {
-
-        fpsElement.textContent =
-            "FPS: " +
-            frameCount;
-
-        frameCount = 0;
-
-        lastTime = now;
-
-    }
-
-}
-
-
-/* =========================================================
-   RESIZE
-========================================================= */
-
-function resize() {
-
-    if (!camera || !renderer) {
-        return;
-    }
-
-    camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
-
-    camera.updateProjectionMatrix();
-
-
-    renderer.setPixelRatio(
-        Math.min(
-            window.devicePixelRatio || 1,
-            1.5
-        )
-    );
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
-
-}
-
-
-/* =========================================================
-   START
-========================================================= */
-
-init();
-
 </script>
 
+<script type="module">
+import * as THREE from "three";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+
+/* =========================================================
+   SHIP MODEL
+   Replace the placeholder below with your ixsenterprise.glb
+   direct-download URL.
+
+   Google Drive file ID example:
+   https://drive.google.com/file/d/1fClk74KK4ZZNe1cmmebS3bIR2LylhBXS/view?usp=drivesdk
+
+   A Google Drive preview/share URL may not work as a raw GLB.
+   CORS restrictions or a confirmation page can block loading.
+
+   A 189 MB model is very large for mobile. Compress/optimize
+   it before using it in a mobile browser.
+   ========================================================= */
+const SHIP_MODEL_URL =
+ "https://drive.google.com/uc?export=download&id=YOUR_GOOGLE_DRIVE_FILE_ID";
+
+/* Public texture maps. Network access is required.
+   If a remote image fails, the procedural material remains. */
+const TEX = "https://www.solarsystemscope.com/textures/download/";
+
+const $ = id => document.getElementById(id);
+const app = $("app");
+const sceneRoot = $("scene");
+const loaderScreen = $("loading");
+const loadText = $("loadText");
+const status = $("status");
+const notice = $("notice");
+
+let scene, camera, renderer, clock, shipRoot, shipVisual;
+let earthTexture, moonTexture, marsTexture, jupiterTexture, saturnTexture;
+let shipLoaded = false;
+let targetId = "sun";
+let selectedId = "sun";
+let currentCategory = "all";
+let trajectoryVisible = true;
+let gravityEnabled = true;
+let warp = null;
+let noticeTimer;
+let lastFrame = 0;
+let cameraYaw = 0;
+let cameraPitch = 0.22;
+let cameraDistance = 25;
+let drag = null;
+let cameraMode = 0;
+
+const velocity = new THREE.Vector3();
+const acceleration = new THREE.Vector3();
+const temp = new THREE.Vector3();
+const forward = new THREE.Vector3(0,0,-1);
+const cameraWanted = new THREE.Vector3();
+const cameraLook = new THREE.Vector3();
+const gravityBodies = [];
+const objects = new Map();
+const held = {};
+const keys = {};
+
+const sim = {
+ throttle:0,
+ thrust:18,
+ reverse:12,
+ rotation:1.0,
+ brake:false,
+ time:0,
+ warpProgress:0,
+ lastTrajectory:0
+};
+
+/*
+  Catalog distances are based on commonly published approximate
+  distances. The wide-galaxy map uses illustrative coordinates,
+  not a precision 3D stellar catalogue.
+
+  The Solar System mode is intentionally compressed so planets
+  remain visible on a phone. It is NOT a single uniform scale.
+*/
+const catalog = [
+ {id:"sun",name:"Sun",type:"stars",kind:"G2V star",distance:0,category:"Local star",map:[0,0],color:0xffd16b,lum:2,solar:true,description:"The star at the center of our Solar System."},
+ {id:"mercury",name:"Mercury",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[0.5,0.3],color:0xa5a39c,solar:true,description:"The innermost planet."},
+ {id:"venus",name:"Venus",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[0.7,-0.2],color:0xe6bd83,solar:true,description:"A rocky world with a dense atmosphere."},
+ {id:"earth",name:"Earth",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[1,0.2],color:0x2c91ff,solar:true,description:"Our home planet."},
+ {id:"moon",name:"Moon",type:"solar",kind:"Natural satellite",distance:0,category:"Solar System",map:[1.1,0.3],color:0xbfc5cc,solar:true,description:"Earth's natural satellite."},
+ {id:"mars",name:"Mars",type:"solar",kind:"Terrestrial planet",distance:0,category:"Solar System",map:[1.5,0.5],color:0xc96f51,solar:true,description:"The red planet."},
+ {id:"jupiter",name:"Jupiter",type:"solar",kind:"Gas giant",distance:0,category:"Solar System",map:[2.2,-0.3],color:0xd5b18c,solar:true,description:"The largest planet in the Solar System."},
+ {id:"saturn",name:"Saturn",type:"solar",kind:"Gas giant",distance:0,category:"Solar System",map:[3,0.1],color:0xd9c08b,solar:true,description:"A gas giant with a spectacular ring system."},
+ {id:"uranus",name:"Uranus",type:"solar",kind:"Ice giant",distance:0,category:"Solar System",map:[3.8,-0.5],color:0x91e3e9,solar:true,description:"A distant ice giant."},
+ {id:"neptune",name:"Neptune",type:"solar",kind:"Ice giant",distance:0,category:"Solar System",map:[4.5,0.4],color:0x376de8,solar:true,description:"A distant blue ice giant."},
+
+ {id:"proxima",name:"Proxima Centauri",type:"stars",kind:"M-type red dwarf",distance:4.2465,category:"Alpha Centauri system",map:[4.1,1.1],color:0xff7958,lum:0.7,description:"The nearest known star to the Sun."},
+ {id:"alpha",name:"Alpha Centauri A/B",type:"stars",kind:"Binary star system",distance:4.37,category:"Alpha Centauri system",map:[4.3,0.9],color:0xffd89a,lum:1.4,description:"A nearby binary star system."},
+ {id:"barnard",name:"Barnard's Star",type:"stars",kind:"Red dwarf",distance:5.96,category:"Solar neighborhood",map:[-5.1,2.2],color:0xff806b,lum:0.65,description:"A nearby red dwarf with known exoplanets."},
+ {id:"wolf359",name:"Wolf 359",type:"stars",kind:"Red dwarf",distance:7.86,category:"Solar neighborhood",map:[6.7,-3.0],color:0xff725e,lum:0.6,description:"A nearby faint red dwarf."},
+ {id:"lalande",name:"Lalande 21185",type:"stars",kind:"Red dwarf",distance:8.31,category:"Solar neighborhood",map:[-2.8,-7.1],color:0xff9274,lum:0.6,description:"A nearby red dwarf star."},
+ {id:"sirius",name:"Sirius",type:"stars",kind:"A-type star system",distance:8.6,category:"Canis Major",map:[7.7,4.2],color:0xb8d7ff,lum:1.8,description:"The brightest star in Earth's night sky."},
+ {id:"ross154",name:"Ross 154",type:"stars",kind:"Red dwarf",distance:9.69,category:"Solar neighborhood",map:[-8.5,3.4],color:0xff755d,lum:0.6,description:"A nearby red dwarf."},
+ {id:"epsiloneri",name:"Epsilon Eridani",type:"stars",kind:"K-type star",distance:10.5,category:"Eridanus",map:[-3.2,9.1],color:0xffd18a,lum:1.0,description:"A nearby young star with a debris disk."},
+ {id:"tau",name:"Tau Ceti",type:"stars",kind:"G-type star",distance:11.9,category:"Cetus",map:[9.2,-7.4],color:0xffe2a8,lum:1.0,description:"A nearby Sun-like star."},
+ {id:"trappist",name:"TRAPPIST-1",type:"stars",kind:"Ultra-cool dwarf",distance:39.5,category:"Aquarius",map:[14,9],color:0xff795c,lum:0.7,description:"A compact system with seven known Earth-sized planets."},
+ {id:"kepler22",name:"Kepler-22",type:"stars",kind:"G-type star",distance:620,category:"Cygnus",map:[80,35],color:0xffdf9b,lum:1.0,description:"A star known to host the exoplanet Kepler-22 b."},
+ {id:"kepler452",name:"Kepler-452",type:"stars",kind:"G-type star",distance:1800,category:"Cygnus",map:[-130,60],color:0xffd99b,lum:1.0,description:"A Sun-like star with the exoplanet Kepler-452 b."},
+
+ {id:"trappist1b",name:"TRAPPIST-1 b",type:"exoplanets",kind:"Exoplanet",distance:39.5,category:"TRAPPIST-1",host:"TRAPPIST-1",color:0xb87b65,description:"A rocky planet in the TRAPPIST-1 system."},
+ {id:"trappist1e",name:"TRAPPIST-1 e",type:"exoplanets",kind:"Exoplanet",distance:39.5,category:"TRAPPIST-1",host:"TRAPPIST-1",color:0x6496b5,description:"A rocky exoplanet often discussed in habitability research."},
+ {id:"proxb",name:"Proxima Centauri b",type:"exoplanets",kind:"Exoplanet",distance:4.2465,category:"Proxima Centauri",host:"Proxima Centauri",color:0x8f927e,description:"A planet orbiting the nearest star to the Sun."},
+ {id:"barnardb",name:"Barnard's Star b",type:"exoplanets",kind:"Exoplanet candidate",distance:5.96,category:"Barnard's Star",host:"Barnard's Star",color:0x8d786b,description:"A planet reported around Barnard's Star; catalogue status may change."},
+ {id:"kepler22b",name:"Kepler-22 b",type:"exoplanets",kind:"Exoplanet",distance:620,category:"Kepler-22",host:"Kepler-22",color:0x5e9b9b,description:"A confirmed exoplanet orbiting Kepler-22."},
+ {id:"kepler452b",name:"Kepler-452 b",type:"exoplanets",kind:"Exoplanet",distance:1800,category:"Kepler-452",host:"Kepler-452",color:0x8e967b,description:"A confirmed exoplanet orbiting Kepler-452."},
+
+ {id:"voyager1",name:"Voyager 1",type:"missions",kind:"NASA spacecraft",distance:0,category:"Interstellar mission",color:0xc0d6ff,description:"NASA's Voyager 1 spacecraft, now in interstellar space."},
+ {id:"cassini",name:"Cassini",type:"missions",kind:"NASA mission",distance:0,category:"Saturn exploration",color:0xc9b78e,description:"NASA's Cassini mission explored Saturn and its moons."},
+ {id:"jwst",name:"James Webb Space Telescope",type:"missions",kind:"Space telescope",distance:0,category:"Observatory",color:0xd2c7a2,description:"An infrared space observatory."}
+];
+
+/* Display scale is deliberately different for local and stellar travel.
+   Interstellar light-years are compressed logarithmically for the map.
+   Actual distances are always displayed separately. */
+function starPosition(item){
+ if(item.solar){
+  const local={
+   sun:[0,0,0],mercury:[12,0,0],venus:[18,0,0],
+   earth:[26,0,0],moon:[27.8,0.2,0],
+   mars:[35,0,0],jupiter:[57,0,0],saturn:[78,0,0],
+   uranus:[99,0,0],neptune:[120,0,0]
+  };
+  const p=local[item.id]||[0,0,0];
+  return new THREE.Vector3(...p);
+ }
+ if(item.type==="missions"){
+  const mission={
+   voyager1:[-32,8,-18],cassini:[-76,2,0],jwst:[-18,5,7]
+  }[item.id]||[0,0,0];
+  return new THREE.Vector3(...mission);
+ }
+ if(item.host){
+  const host=catalog.find(x=>x.name===item.host);
+  const base=host?starPosition(host):new THREE.Vector3();
+  const offset={
+   trappist1b:[1.5,0,0],trappist1e:[2,0,0],
+   proxb:[1.4,0,0],barnardb:[1.5,0,0],
+   kepler22b:[1.5,0,0],kepler452b:[1.5,0,0]
+  }[item.id]||[1,0,0];
+  return base.add(new THREE.Vector3(...offset));
+ }
+ const map=item.map||[0,0];
+ const r=22+Math.log10(1+Math.max(0,item.distance))*34;
+ return new THREE.Vector3(map[0]*r/12,map[1]*r/12,-r);
+}
+
+function formatDistance(n){
+ if(!Number.isFinite(n))return "—";
+ if(n>=1e9)return (n/1e9).toFixed(2)+" billion km";
+ if(n>=1e6)return (n/1e6).toFixed(2)+" million km";
+ if(n>=1000)return (n/1000).toFixed(1)+" thousand km";
+ return n.toFixed(0)+" km";
+}
+function ly(n){return n===0?"Solar System":n+" light-years";}
+function say(text){
+ notice.textContent=text;
+ notice.style.display="block";
+ clearTimeout(noticeTimer);
+ noticeTimer=setTimeout(()=>notice.style.display="none",2800);
+}
+function setStatus(text){status.textContent=text}
+
+function init(){
+ scene=new THREE.Scene();
+ scene.background=new THREE.Color(0x02040a);
+ scene.fog=new THREE.FogExp2(0x02040a,0.00016);
+
+ camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.05,100000);
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;
+ renderer.toneMappingExposure=1.22;
+ sceneRoot.appendChild(renderer.domElement);
+
+ scene.add(new THREE.HemisphereLight(0xa5d9ff,0x171b2a,1.4));
+ const sunLight=new THREE.PointLight(0xffedc9,2200,0,1.5);
+ sunLight.position.set(0,0,0);
+ scene.add(sunLight);
+
+ const fill=new THREE.DirectionalLight(0x789ed8,1.1);
+ fill.position.set(-100,60,100);
+ scene.add(fill);
+
+ createStarfield();
+ createGalaxyDisc();
+ createCatalogObjects();
+ createShip();
+ loadTextures();
+ loadShipModel();
+
+ clock=new THREE.Clock();
+ bindUI();
+ populateDestinations();
+ drawMap();
+ updateTargetLabel();
+ loaderScreen.style.display="none";
+ setStatus("FLIGHT COMPUTER ONLINE · MANUAL FLIGHT");
+ animate();
+}
+
+function createStarfield(){
+ const count=10000;
+ const p=new Float32Array(count*3);
+ const colors=new Float32Array(count*3);
+ for(let i=0;i<count;i++){
+  const r=900+Math.random()*4500;
+  const a=Math.random()*Math.PI*2;
+  const z=(Math.random()-.5)*2;
+  const h=Math.sqrt(1-z*z);
+  p[i*3]=r*h*Math.cos(a);
+  p[i*3+1]=r*z;
+  p[i*3+2]=r*h*Math.sin(a);
+  const c=new THREE.Color().setHSL(.52+Math.random()*.12,.25,.55+Math.random()*.45);
+  colors[i*3]=c.r;colors[i*3+1]=c.g;colors[i*3+2]=c.b;
+ }
+ const g=new THREE.BufferGeometry();
+ g.setAttribute("position",new THREE.BufferAttribute(p,3));
+ g.setAttribute("color",new THREE.BufferAttribute(colors,3));
+ scene.add(new THREE.Points(g,new THREE.PointsMaterial({
+  size:1.1,vertexColors:true,sizeAttenuation:true
+ })));
+
+ // A broad, subtle galactic band made from distant points.
+ const bandCount=6500;
+ const bp=new Float32Array(bandCount*3);
+ for(let i=0;i<bandCount;i++){
+  const a=Math.random()*Math.PI*2;
+  const r=160+Math.random()*1700;
+  bp[i*3]=Math.cos(a)*r;
+  bp[i*3+1]=(Math.random()-.5)*65;
+  bp[i*3+2]=Math.sin(a)*r;
+ }
+ const bg=new THREE.BufferGeometry();
+ bg.setAttribute("position",new THREE.BufferAttribute(bp,3));
+ scene.add(new THREE.Points(bg,new THREE.PointsMaterial({
+  color:0x566caa,size:1.3,transparent:true,opacity:.36
+ })));
+}
+
+function createGalaxyDisc(){
+ const arms=4;
+ const count=6500;
+ const p=new Float32Array(count*3);
+ const col=new Float32Array(count*3);
+ for(let i=0;i<count;i++){
+  const arm=i%arms;
+  const r=30+Math.random()*550;
+  const angle=arm*Math.PI*2/arms+r*.012+(Math.random()-.5)*.8;
+  p[i*3]=Math.cos(angle)*r;
+  p[i*3+1]=(Math.random()-.5)*r*.09;
+  p[i*3+2]=Math.sin(angle)*r;
+  const c=new THREE.Color().setHSL(.56+Math.random()*.13,.5,.25+Math.random()*.35);
+  col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+ }
+ const g=new THREE.BufferGeometry();
+ g.setAttribute("position",new THREE.BufferAttribute(p,3));
+ g.setAttribute("color",new THREE.BufferAttribute(col,3));
+ const cloud=new THREE.Points(g,new THREE.PointsMaterial({
+  size:1.2,vertexColors:true,transparent:true,opacity:.34
+ }));
+ cloud.rotation.x=.28;
+ scene.add(cloud);
+}
+
+function addSphere(id,position,radius,color,texture){
+ const material=new THREE.MeshStandardMaterial({
+  color,roughness:.9,metalness:0
+ });
+ if(texture)material.map=texture;
+ const mesh=new THREE.Mesh(new THREE.SphereGeometry(radius,48,32),material);
+ mesh.position.copy(position);
+ scene.add(mesh);
+ objects.set(id,mesh);
+ return mesh;
+}
+
+function makeGlow(color){
+ const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
+  color,transparent:true,opacity:.85,depthWrite:false,
+  blending:THREE.AdditiveBlending
+ }));
+ sprite.scale.set(3.5,3.5,1);
+ return sprite;
+}
+
+function createCatalogObjects(){
+ const pSun=new THREE.Vector3(0,0,0);
+ const sunMat=new THREE.MeshBasicMaterial({color:0xffd27b});
+ const sun=new THREE.Mesh(new THREE.SphereGeometry(3.4,40,28),sunMat);
+ sun.position.copy(pSun);
+ scene.add(sun);objects.set("sun",sun);
+ const sunGlow=makeGlow(0xffba55);
+ sunGlow.position.copy(pSun);sunGlow.scale.set(16,16,1);scene.add(sunGlow);
+
+ for(const item of catalog){
+  if(item.id==="sun")continue;
+  const pos=starPosition(item);
+  if(item.type==="solar"){
+   const radius={
+    mercury:.42,venus:.8,earth:.85,moon:.23,mars:.6,
+    jupiter:2.8,saturn:2.4,uranus:1.55,neptune:1.5
+   }[item.id]||.7;
+   const texture={
+    earth:earthTexture,moon:moonTexture,mars:marsTexture,
+    jupiter:jupiterTexture,saturn:saturnTexture
+   }[item.id];
+   const mesh=addSphere(item.id,pos,radius,item.color,texture);
+   if(item.id==="saturn"){
+    const ring=new THREE.Mesh(
+     new THREE.RingGeometry(3.1,4.8,80),
+     new THREE.MeshStandardMaterial({color:0xcbb58c,side:THREE.DoubleSide,transparent:true,opacity:.7})
+    );
+    ring.position.copy(pos);ring.rotation.x=-.25;scene.add(ring);
+   }
+   if(item.id==="earth"){
+    const atmosphere=new THREE.Mesh(
+     new THREE.SphereGeometry(.92,32,24),
+     new THREE.MeshBasicMaterial({color:0x238cff,transparent:true,opacity:.13,side:THREE.BackSide})
+    );
+    atmosphere.position.copy(pos);scene.add(atmosphere);
+   }
+  }else if(item.type==="stars"){
+   const star=new THREE.Mesh(
+    new THREE.SphereGeometry(item.lum>1.5?1.5:.8,20,16),
+    new THREE.MeshBasicMaterial({color:item.color})
+   );
+   star.position.copy(pos);scene.add(star);objects.set(item.id,star);
+   const glow=makeGlow(item.color);glow.position.copy(pos);
+   glow.scale.set(5,5,1);scene.add(glow);
+  }else{
+   const mesh=new THREE.Mesh(
+    new THREE.SphereGeometry(.36,18,14),
+    new THREE.MeshStandardMaterial({color:item.color,roughness:.9})
+   );
+   mesh.position.copy(pos);scene.add(mesh);objects.set(item.id,mesh);
+  }
+
+  // Markers are used for navigation and target selection.
+  const marker=new THREE.Sprite(new THREE.SpriteMaterial({
+   color:item.color||0x7de5ff,transparent:true,opacity:.55,depthWrite:false
+  }));
+  marker.position.copy(pos);
+  marker.scale.set(item.type==="stars"?2.4:1.3,item.type==="stars"?2.4:1.3,1);
+  scene.add(marker);
+ }
+ createOrbits();
+}
+
+function createOrbits(){
+ const orbitData=[
+  ["mercury",12],["venus",18],["earth",26],["mars",35],
+  ["jupiter",57],["saturn",78],["uranus",99],["neptune",120]
+ ];
+ for(const [id,r] of orbitData){
+  const points=[];
+  for(let i=0;i<=180;i++){
+   const a=i/180*Math.PI*2;
+   points.push(new THREE.Vector3(Math.cos(a)*r,0,Math.sin(a)*r));
+  }
+  const line=new THREE.Line(
+   new THREE.BufferGeometry().setFromPoints(points),
+   new THREE.LineBasicMaterial({color:0x4b7291,transparent:true,opacity:.24})
+  );
+  scene.add(line);
+ }
+}
+
+function loadTextures(){
+ const textureLoader=new THREE.TextureLoader();
+ const load=(file,cb)=>{
+  textureLoader.load(TEX+file,texture=>{
+   texture.colorSpace=THREE.SRGBColorSpace;
+   cb(texture);
+  },undefined,()=>console.warn("Texture unavailable:",file));
+ };
+ load("2k_earth_daymap.jpg",t=>replaceTexture("earth",t));
+ load("2k_moon.jpg",t=>replaceTexture("moon",t));
+ load("2k_mars.jpg",t=>replaceTexture("mars",t));
+ load("2k_jupiter.jpg",t=>replaceTexture("jupiter",t));
+ load("2k_saturn.jpg",t=>replaceTexture("saturn",t));
+}
+
+function replaceTexture(id,texture){
+ const mesh=objects.get(id);
+ if(!mesh)return;
+ mesh.material.map=texture;
+ mesh.material.color.set(0xffffff);
+ mesh.material.needsUpdate=true;
+}
+
+function createShip(){
+ shipRoot=new THREE.Group();
+ shipRoot.position.set(0,2,48);
+ scene.add(shipRoot);
+
+ const group=new THREE.Group();
+ const hullMat=new THREE.MeshStandardMaterial({color:0xc8d8e8,metalness:.75,roughness:.3});
+ const darkMat=new THREE.MeshStandardMaterial({color:0x20384c,metalness:.55,roughness:.4});
+ const glowMat=new THREE.MeshBasicMaterial({color:0x43dfff});
+
+ const hull=new THREE.Mesh(new THREE.ConeGeometry(.8,5,10),hullMat);
+ hull.rotation.x=-Math.PI/2;hull.position.z=-.7;group.add(hull);
+ const core=new THREE.Mesh(new THREE.CylinderGeometry(.55,.85,2.6,10),darkMat);
+ core.rotation.x=Math.PI/2;core.position.z=1.4;group.add(core);
+
+ const wingGeom=new THREE.BufferGeometry();
+ const vertices=new Float32Array([
+  0,0,0, 3.2,0,.9, .8,.15,1.4,
+  0,0,0, .8,.15,1.4, .4,0,-.6
+ ]);
+ wingGeom.setAttribute("position",new THREE.BufferAttribute(vertices,3));
+ wingGeom.computeVertexNormals();
+ const wing=new THREE.Mesh(wingGeom,hullMat);
+ group.add(wing);
+ const wing2=wing.clone();wing2.scale.x=-1;group.add(wing2);
+
+ for(const x of [-.45,.45]){
+  const engine=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),glowMat);
+  engine.position.set(x,-.15,2.4);group.add(engine);
+ }
+ shipRoot.add(group);
+ shipVisual=group;
+}
+
+function loadShipModel(){
+ if(SHIP_MODEL_URL.includes("YOUR_GOOGLE_DRIVE_FILE_ID")){
+  loadText.textContent="Using fallback ship. Add your Google Drive file ID in the code.";
+  return;
+ }
+
+ const gltfLoader=new GLTFLoader();
+ gltfLoader.setCrossOrigin("anonymous");
+ gltfLoader.load(SHIP_MODEL_URL,gltf=>{
+  try{
+   const model=gltf.scene;
+   model.updateMatrixWorld(true);
+   const box=new THREE.Box3().setFromObject(model);
+   const size=new THREE.Vector3();const center=new THREE.Vector3();
+   box.getSize(size);box.getCenter(center);
+   const largest=Math.max(size.x,size.y,size.z);
+   if(!Number.isFinite(largest)||largest<=0)throw new Error("Invalid model bounds");
+   model.position.sub(center);
+   model.scale.multiplyScalar(6/largest);
+   const wrapper=new THREE.Group();wrapper.add(model);
+   // Change rotation here if the imported ship faces the wrong direction.
+   wrapper.rotation.y=0;
+   shipRoot.remove(shipVisual);
+   shipRoot.add(wrapper);shipVisual=wrapper;shipLoaded=true;
+   setStatus("IXS ENTERPRISE LOADED · FLIGHT READY");
+  }catch(e){console.error(e);setStatus("FALLBACK SHIP ACTIVE");}
+ },xhr=>{
+  if(xhr.total)loadText.textContent="Downloading ship model: "+Math.round(xhr.loaded/xhr.total*100)+"%";
+  else loadText.textContent="Downloading ship model...";
+ },err=>{
+  console.warn("Ship model could not load:",err);
+  setStatus("MODEL UNAVAILABLE · FALLBACK SHIP ACTIVE");
+ });
+}
+
+function getItem(id){return catalog.find(x=>x.id===id)}
+function selectedPosition(id){return starPosition(getItem(id)||catalog[0])}
+
+function populateDestinations(){
+ const list=$("destList");
+ const query=$("search").value.trim().toLowerCase();
+ list.innerHTML="";
+ const results=catalog.filter(item=>{
+  const matchesCategory=currentCategory==="all"||item.type===currentCategory;
+  const matchesText=(item.name+" "+item.kind+" "+item.category+" "+(item.description||"")).toLowerCase().includes(query);
+  return matchesCategory&&matchesText;
+ });
+
+ for(const item of results){
+  const button=document.createElement("button");
+  button.className="dest"+(item.id===selectedId?" active":"");
+  const distance=item.distance>0?ly(item.distance):item.type==="solar"?"Local system":"Local region";
+  button.innerHTML="<strong>"+escapeHTML(item.name)+"</strong><small>"+escapeHTML(item.kind)+" · "+escapeHTML(distance)+"</small>";
+  button.addEventListener("click",()=>{
+   selectedId=item.id;
+   $("selectedInfo").textContent=item.description+"  Type: "+item.kind+". Distance: "+distance+".";
+   populateDestinations();
+   updateTargetLabel();
+  });
+  list.appendChild(button);
+ }
+ if(!results.length)list.innerHTML="<p>No destinations match this search.</p>";
+ if(!getItem(selectedId))selectedId="sun";
+ const selected=getItem(selectedId);
+ $("selectedInfo").textContent=selected.description+" Type: "+selected.kind+". Distance: "+(selected.distance>0?ly(selected.distance):"Local system")+".";
+}
+
+function escapeHTML(str){
+ return String(str).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function updateTargetLabel(){
+ const item=getItem(targetId)||getItem("sun");
+ $("targetLabel").innerHTML=escapeHTML(item.name.toUpperCase())+
+  "<small>CAMERA: "+(cameraMode===0?"CHASE":"WIDE FOLLOW")+" · DRAG TO ORBIT</small>";
+}
+
+function setTarget(){
+ targetId=selectedId;
+ const item=getItem(targetId);
+ setStatus("NAVIGATION TARGET SET · "+item.name.toUpperCase());
+ updateTargetLabel();
+ say("TARGET SET: "+item.name);
+}
+
+function beginWarp(){
+ if(warp)return;
+ const destination=selectedPosition(targetId);
+ const distance=shipRoot.position.distanceTo(destination);
+ if(distance<8){say("Already near this destination.");return}
+ warp={
+  start:shipRoot.position.clone(),
+  end:destination.clone(),
+  elapsed:0,
+  duration:THREE.MathUtils.clamp(distance/90,3,16)
+ };
+ $("warpFX").style.opacity=".7";
+ setStatus("WARP DRIVE ENGAGED · "+getItem(targetId).name.toUpperCase());
+}
+
+function cancelWarp(){
+ if(!warp)return;
+ warp=null;
+ $("warpFX").style.opacity="0";
+ velocity.set(0,0,0);
+ setStatus("WARP CANCELLED · MANUAL FLIGHT");
+}
+
+function updateWarp(dt){
+ if(!warp)return false;
+ warp.elapsed+=dt;
+ const t=THREE.MathUtils.clamp(warp.elapsed/warp.duration,0,1);
+ const eased=t*t*(3-2*t);
+ shipRoot.position.lerpVectors(warp.start,warp.end,eased);
+ velocity.copy(warp.end).sub(warp.start).multiplyScalar(1/warp.duration);
+ $("warpFX").style.opacity=String(.3+.3*Math.sin(performance.now()*.012));
+ if(t>=1){
+  warp=null;velocity.set(0,0,0);
+  $("warpFX").style.opacity="0";
+  setStatus("WARP COMPLETE · MANUAL FLIGHT");
+  say("ARRIVED AT "+getItem(targetId).name.toUpperCase());
+ }
+ return true;
+}
+
+function control(name){
+ return Boolean(held[name]||keys[name]);
+}
+
+function updatePhysics(dt){
+ if(warp&&updateWarp(dt))return;
+
+ const pitch=(control("pitchUp")?1:0)-(control("pitchDown")?1:0);
+ const yaw=(control("yawLeft")?1:0)-(control("yawRight")?1:0);
+ const roll=(control("rollLeft")?1:0)-(control("rollRight")?1:0);
+
+ if(pitch)shipRoot.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),pitch*sim.rotation*dt));
+ if(yaw)shipRoot.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),yaw*sim.rotation*dt));
+ if(roll)shipRoot.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),roll*sim.rotation*dt));
+ shipRoot.quaternion.normalize();
+
+ acceleration.set(0,0,0);
+ const forwardPressed=control("forward")||keys.KeyW;
+ const reversePressed=control("reverse")||keys.KeyS;
+ let throttle=sim.throttle/100;
+ if(forwardPressed)throttle=Math.max(throttle,.85);
+ const boost=keys.ShiftLeft||keys.ShiftRight?2.5:1;
+ const direction=forward.clone().applyQuaternion(shipRoot.quaternion);
+
+ if(throttle>0)acceleration.addScaledVector(direction,sim.thrust*throttle*boost);
+ if(reversePressed)acceleration.addScaledVector(direction,-sim.reverse);
+
+ // Approximate gravity from local solar-system bodies.
+ // Star-system and galaxy scales are compressed, so this is
+ // a playable model rather than a physically exact N-body solver.
+ if(gravityEnabled){
+  const localBodies=[
+   {pos:new THREE.Vector3(0,0,0),mu:0.04,r:3.4},
+   {pos:new THREE.Vector3(26,0,0),mu:2.2,r:.85},
+   {pos:new THREE.Vector3(35,0,0),mu:.15,r:.6},
+   {pos:new THREE.Vector3(57,0,0),mu:1.6,r:2.8},
+   {pos:new THREE.Vector3(78,0,0),mu:1.1,r:2.4}
+  ];
+  for(const body of localBodies){
+   temp.copy(body.pos).sub(shipRoot.position);
+   const d2=Math.max(temp.lengthSq(),body.r*body.r);
+   if(d2<1800&&d2>0.001){
+    temp.normalize();
+    acceleration.addScaledVector(temp,body.mu/d2);
+   }
+  }
+ }
+
+ velocity.addScaledVector(acceleration,dt);
+
+ if(sim.brake||keys.Space){
+  const speed=velocity.length();
+  if(speed>.001){
+   const amount=Math.min(speed,20*dt);
+   velocity.addScaledVector(velocity.clone().normalize(),-amount);
+  }
+ }
+
+ shipRoot.position.addScaledVector(velocity,dt);
+ sim.time+=dt;
+}
+
+function updateCamera(dt){
+ const sensitivity=.005;
+ const distance=cameraMode===0?cameraDistance:cameraDistance*1.65;
+ const cp=Math.cos(cameraPitch),sp=Math.sin(cameraPitch);
+ const offset=new THREE.Vector3(
+  Math.sin(cameraYaw)*cp*distance,
+  sp*distance+4,
+  Math.cos(cameraYaw)*cp*distance
+ );
+ offset.applyQuaternion(shipRoot.quaternion);
+ cameraWanted.copy(shipRoot.position).add(offset);
+ camera.position.lerp(cameraWanted,1-Math.exp(-dt*5));
+ cameraLook.copy(shipRoot.position);
+ cameraLook.add(forward.clone().applyQuaternion(shipRoot.quaternion).multiplyScalar(4));
+ camera.lookAt(cameraLook);
+}
+
+function updateTrajectory(){
+ if(!trajectoryVisible||!shipRoot)return;
+ const points=[];
+ const pos=shipRoot.position.clone();
+ const vel=velocity.clone();
+ const q=shipRoot.quaternion.clone();
+ const f=forward.clone().applyQuaternion(q);
+ const a=new THREE.Vector3();
+ const dt=.65;
+ for(let i=0;i<100;i++){
+  points.push(pos.clone());
+  a.set(0,0,0);
+  a.addScaledVector(f,sim.thrust*(sim.throttle/100));
+  if(gravityEnabled){
+   const sun=new THREE.Vector3(0,0,0);
+   const delta=sun.sub(pos);
+   const d2=Math.max(delta.lengthSq(),100);
+   if(d2<100000){
+    delta.normalize();
+    a.addScaledVector(delta,.04/d2);
+   }
+  }
+  vel.addScaledVector(a,dt);
+  pos.addScaledVector(vel,dt);
+ }
+ const lineGeometry=new THREE.BufferGeometry().setFromPoints(points);
+ if(window.trajectoryLine){
+  scene.remove(window.trajectoryLine);
+  window.trajectoryLine.geometry.dispose();
+ }
+ window.trajectoryLine=new THREE.Line(lineGeometry,new THREE.LineDashedMaterial({
+  color:0x66dcff,dashSize:1.8,gapSize:1.1,transparent:true,opacity:.7
+ }));
+ window.trajectoryLine.computeLineDistances();
+ scene.add(window.trajectoryLine);
+}
+
+function drawMap(){
+ const canvas=$("mapCanvas");
+ const ctx=canvas.getContext("2d");
+ const w=canvas.width,h=canvas.height;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle="#020914";ctx.fillRect(0,0,w,h);
+
+ ctx.strokeStyle="#142b43";ctx.lineWidth=1;
+ for(let x=0;x<w;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+ for(let y=0;y<h;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+
+ const centerX=w/2,centerY=h/2;
+ ctx.strokeStyle="#31567b";ctx.beginPath();ctx.ellipse(centerX,centerY,135,55,-.12,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle="#ffce70";ctx.beginPath();ctx.arc(centerX,centerY,4,0,Math.PI*2);ctx.fill();
+
+ const visible=catalog.filter(i=>i.type==="stars");
+ for(const item of visible){
+  const m=item.map||[0,0];
+  const x=centerX+m[0]*2.1;
+  const y=centerY+m[1]*1.45;
+  ctx.fillStyle=item.color?"#9edfff":"#ffffff";
+  ctx.beginPath();ctx.arc(x,y,item.id===targetId?4:2,0,Math.PI*2);ctx.fill();
+  if(item.id===targetId){
+   ctx.strokeStyle="#8deaff";ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.stroke();
+  }
+ }
+ ctx.fillStyle="#83e5ff";ctx.font="10px Arial";
+ ctx.fillText("SUN",centerX+7,centerY-7);
+}
+
+function updateHUD(){
+ const speed=velocity.length();
+ $("speed").textContent=formatDistance(speed*1000)+"/s";
+ $("throttleRead").textContent=sim.throttle+"%";
+ $("throttleValue").textContent=sim.throttle+"%";
+ $("mode").textContent=warp?"WARP":"MANUAL";
+ $("gravityRead").textContent=gravityEnabled?"ON":"OFF";
+
+ let nearest=null,nearestDist=Infinity;
+ for(const item of catalog){
+  const p=starPosition(item);
+  const d=shipRoot.position.distanceTo(p);
+  if(d<nearestDist){nearestDist=d;nearest=item}
+ }
+ $("nearest").textContent=nearest?nearest.name:"—";
+ $("altitude").textContent=nearest?nearestDist.toFixed(1)+" u":"—";
+}
+
+function resetShip(){
+ cancelWarp();
+ shipRoot.position.set(0,2,48);
+ shipRoot.quaternion.identity();
+ velocity.set(0,0,0);
+ sim.throttle=0;
+ $("throttle").value=0;
+ $("throttleValue").textContent="0%";
+ setStatus("SHIP RESET · FLIGHT READY");
+}
+
+function bindUI(){
+ $("startButton").addEventListener("click",()=>{$("startPanel").style.display="none";say("FLIGHT DECK ACTIVE")});
+ $("destButton").addEventListener("click",()=>{
+  const panel=$("destinationPanel");
+  panel.style.display=panel.style.display==="block"?"none":"block";
+ });
+ $("mapButton").addEventListener("click",()=>{
+  const panel=$("mapPanel");
+  panel.style.display=panel.style.display==="block"?"none":"block";
+ });
+ $("trajectoryButton").addEventListener("click",()=>{
+  trajectoryVisible=!trajectoryVisible;
+  $("trajectoryButton").textContent=trajectoryVisible?"TRAJECTORY ON":"TRAJECTORY OFF";
+  if(!trajectoryVisible&&window.trajectoryLine){scene.remove(window.trajectoryLine);window.trajectoryLine=null}
+  else updateTrajectory();
+ });
+ $("search").addEventListener("input",populateDestinations);
+ document.querySelectorAll("[data-category]").forEach(button=>{
+  button.addEventListener("click",()=>{
+   currentCategory=button.dataset.category;
+   document.querySelectorAll("[data-category]").forEach(b=>b.classList.toggle("active",b===button));
+   populateDestinations();
+  });
+ });
+ $("setTarget").addEventListener("click",setTarget);
+ $("warpButton").addEventListener("click",()=>{
+  setTarget();
+  beginWarp();
+  $("destinationPanel").style.display="none";
+ });
+ $("mapTarget").addEventListener("click",drawMap);
+ $("cameraButton").addEventListener("click",()=>{
+  cameraMode=(cameraMode+1)%2;
+  updateTargetLabel();
+  say(cameraMode===0?"CHASE CAMERA":"WIDE FOLLOW CAMERA");
+ });
+ $("resetButton").addEventListener("click",resetShip);
+ $("throttle").addEventListener("input",e=>{sim.throttle=Number(e.target.value)});
+ $("brake").addEventListener("pointerdown",e=>{e.preventDefault();sim.brake=true;$("brake").classList.add("held")});
+ const brakeEnd=()=>{sim.brake=false;$("brake").classList.remove("held")};
+ ["pointerup","pointercancel","pointerleave"].forEach(ev=>$("brake").addEventListener(ev,brakeEnd));
+
+ document.querySelectorAll("[data-control]").forEach(button=>{
+  const name=button.dataset.control;
+  const down=e=>{e.preventDefault();held[name]=true;button.classList.add("held");try{button.setPointerCapture(e.pointerId)}catch{}};
+  const up=e=>{e.preventDefault();held[name]=false;button.classList.remove("held")};
+  button.addEventListener("pointerdown",down);
+  button.addEventListener("pointerup",up);
+  button.addEventListener("pointercancel",up);
+  button.addEventListener("lostpointercapture",up);
+ });
+
+ window.addEventListener("keydown",e=>{
+  keys[e.code]=true;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code))e.preventDefault();
+  if(e.code==="ArrowUp")held.pitchUp=true;
+  if(e.code==="ArrowDown")held.pitchDown=true;
+  if(e.code==="ArrowLeft")held.yawLeft=true;
+  if(e.code==="ArrowRight")held.yawRight=true;
+  if(e.code==="KeyQ")held.rollLeft=true;
+  if(e.code==="KeyE")held.rollRight=true;
+  if(e.code==="KeyW")held.forward=true;
+  if(e.code==="KeyS")held.reverse=true;
+  if(e.code==="Space")sim.brake=true;
+ },{passive:false});
+
+ window.addEventListener("keyup",e=>{
+  keys[e.code]=false;
+  if(e.code==="ArrowUp")held.pitchUp=false;
+  if(e.code==="ArrowDown")held.pitchDown=false;
+  if(e.code==="ArrowLeft")held.yawLeft=false;
+  if(e.code==="ArrowRight")held.yawRight=false;
+  if(e.code==="KeyQ")held.rollLeft=false;
+  if(e.code==="KeyE")held.rollRight=false;
+  if(e.code==="KeyW")held.forward=false;
+  if(e.code==="KeyS")held.reverse=false;
+  if(e.code==="Space")sim.brake=false;
+ });
+
+ // Drag on the 3D canvas to rotate the external chase camera.
+ const canvas=renderer.domElement;
+ canvas.addEventListener("pointerdown",e=>{
+  if(e.target.closest&&e.target.closest("button"))return;
+  drag={x:e.clientX,y:e.clientY,id:e.pointerId};
+  try{canvas.setPointerCapture(e.pointerId)}catch{}
+ });
+ canvas.addEventListener("pointermove",e=>{
+  if(!drag||drag.id!==e.pointerId)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  cameraYaw-=dx*.006;
+  cameraPitch=THREE.MathUtils.clamp(cameraPitch+dy*.005,-1.1,1.1);
+  drag.x=e.clientX;drag.y=e.clientY;
+ });
+ const stopDrag=()=>{drag=null};
+ canvas.addEventListener("pointerup",stopDrag);
+ canvas.addEventListener("pointercancel",stopDrag);
+ canvas.addEventListener("wheel",e=>{
+  cameraDistance=THREE.MathUtils.clamp(cameraDistance+e.deltaY*.025,8,90);
+ },{passive:true});
+
+ window.addEventListener("blur",()=>{
+  Object.keys(held).forEach(k=>held[k]=false);
+  Object.keys(keys).forEach(k=>keys[k]=false);
+  sim.brake=false;drag=null;
+ });
+ window.addEventListener("resize",resize);
+}
+
+function resize(){
+ if(!camera||!renderer)return;
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
+}
+
+function animate(){
+ requestAnimationFrame(animate);
+ if(!renderer||!clock)return;
+ const dt=Math.min(clock.getDelta(),.035);
+ updatePhysics(dt);
+ updateCamera(dt);
+
+ if(sim.time-sim.lastTrajectory>.75){
+  sim.lastTrajectory=sim.time;
+  if(trajectoryVisible)updateTrajectory();
+ }
+ updateHUD();
+ renderer.render(scene,camera);
+}
+
+try{
+ init();
+}catch(error){
+ console.error(error);
+ loaderScreen.style.display="flex";
+ loadText.textContent="Could not start 3D graphics. Check browser WebGL support and internet connection.";
+}
+</script>
 </body>
 </html>
